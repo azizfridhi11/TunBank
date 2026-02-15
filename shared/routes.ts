@@ -119,6 +119,27 @@ export const api = {
         201: z.custom<typeof cards.$inferSelect>(),
       },
     },
+  },
+  loans: {
+    list: {
+      method: 'GET' as const,
+      path: '/api/loans' as const,
+      responses: {
+        200: z.array(z.custom<any>()), // Replace with proper type in next step
+      },
+    },
+    repay: {
+      method: 'POST' as const,
+      path: '/api/loans/:id/repay' as const,
+      input: z.object({
+        amount: z.coerce.number(),
+        accountId: z.coerce.number(),
+      }),
+      responses: {
+        200: z.object({ success: z.boolean(), newBalance: z.string() }),
+        400: errorSchemas.validation,
+      },
+    },
   }
 };
 

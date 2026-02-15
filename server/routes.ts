@@ -102,17 +102,51 @@ export async function registerRoutes(
     res.json(cards);
   });
 
-  app.post(api.cards.create.path, async (req, res) => {
+  // === LOANS ===
+  app.get(api.loans.list.path, async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    const loans = await storage.getLoans(req.user.id);
+    res.json(loans);
+  });
+
+  app.post(api.loans.repay.path, async (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
     try {
-      const input = insertCardSchema.parse(req.body);
+      const loanId = Number(req.params.id);
+      const { amount, accountId } = api.loans.repay.input.parse(req.body);
       
-      // Verify account ownership
-      const account = await storage.getAccount(input.accountId);
-      if (!account || account.userId !== req.user.id) return res.sendStatus(403);
+      const loan = await storage.getLoan(loanId);
+      const account = await storage.getAccount(accountId);
 
-      const card = await storage.createCard(input);
-      res.status(201).json(card);
+      if (!loan || loan.userId !== req.user.id) return res.status(404).json({ message: "Loan not found" });
+      if (!account || account.userId !== req.user.id) return res.status(404).json({ message: "Account not found" });
+
+      const accountBalance = new Decimal(account.balance);
+      const repaymentAmount = new Decimal(amount);
+      const remainingLoanBalance = new Decimal(loan.remainingBalance);
+
+      if (accountBalance.lessThan(repaymentAmount)) {
+        return res.status(400).json({ message: "Insufficient funds in selected account" });
+      }
+
+      // Update balances
+      const newAccountBalance = accountBalance.minus(repaymentAmount).toString();
+      const newLoanBalance = Decimal.max(0, remainingLoanBalance.minus(repaymentAmount)).toString();
+
+      await storage.updateAccountBalance(account.id, newAccountBalance);
+      await storage.updateLoanBalance(loan.id, newLoanBalance);
+
+      // Create transaction record
+      await storage.createTransaction({
+        fromAccountId: account.id,
+        toAccountId: null,
+        amount: repaymentAmount.toString(),
+        type: "payment",
+        status: "completed",
+        description: `Loan Repayment - Loan ID: ${loanId}`
+      });
+
+      res.json({ success: true, newBalance: newLoanBalance });
     } catch (err) {
       if (err instanceof z.ZodError) {
         return res.status(400).json({ message: err.errors[0].message });

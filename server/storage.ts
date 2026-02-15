@@ -1,10 +1,11 @@
 import { db } from "./db";
 import {
-  users, accounts, transactions, cards,
+  users, accounts, transactions, cards, loans,
   type User, type InsertUser,
   type Account, type InsertAccount,
   type Transaction, type InsertTransaction,
-  type Card, type InsertCard
+  type Card, type InsertCard,
+  type Loan, type InsertLoan
 } from "@shared/schema";
 import { eq, or, desc } from "drizzle-orm";
 
@@ -33,6 +34,12 @@ export interface IStorage {
   // Cards
   getCards(userId: number): Promise<Card[]>;
   createCard(card: InsertCard): Promise<Card>;
+
+  // Loans
+  getLoans(userId: number): Promise<Loan[]>;
+  getLoan(id: number): Promise<Loan | undefined>;
+  updateLoanBalance(id: number, remainingBalance: string): Promise<Loan>;
+  createLoan(loan: InsertLoan): Promise<Loan>;
   
   sessionStore: session.Store;
 }
@@ -90,8 +97,6 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getTransactions(userId: number): Promise<Transaction[]> {
-    // Join transactions where from_account OR to_account belongs to user
-    // For simplicity in this MVP, we'll fetch accounts then transactions
     const userAccounts = await this.getAccounts(userId);
     const accountIds = userAccounts.map(a => a.id);
 
@@ -114,7 +119,6 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getCards(userId: number): Promise<Card[]> {
-    // Similar to transactions, get cards for user's accounts
     const userAccounts = await this.getAccounts(userId);
     const accountIds = userAccounts.map(a => a.id);
 
@@ -128,6 +132,29 @@ export class DatabaseStorage implements IStorage {
   async createCard(card: InsertCard): Promise<Card> {
     const [newCard] = await db.insert(cards).values(card).returning();
     return newCard;
+  }
+
+  async getLoans(userId: number): Promise<Loan[]> {
+    return await db.select().from(loans).where(eq(loans.userId, userId));
+  }
+
+  async getLoan(id: number): Promise<Loan | undefined> {
+    const [loan] = await db.select().from(loans).where(eq(loans.id, id));
+    return loan;
+  }
+
+  async updateLoanBalance(id: number, remainingBalance: string): Promise<Loan> {
+    const [updated] = await db
+      .update(loans)
+      .set({ remainingBalance, status: parseFloat(remainingBalance) <= 0 ? "paid" : "active" })
+      .where(eq(loans.id, id))
+      .returning();
+    return updated;
+  }
+
+  async createLoan(loan: InsertLoan): Promise<Loan> {
+    const [newLoan] = await db.insert(loans).values(loan).returning();
+    return newLoan;
   }
 }
 

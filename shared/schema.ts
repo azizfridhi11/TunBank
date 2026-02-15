@@ -53,9 +53,26 @@ export const cards = pgTable("cards", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const loans = pgTable("loans", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
+  interestRate: decimal("interest_rate", { precision: 5, scale: 2 }).notNull(),
+  durationMonths: integer("duration_months").notNull(),
+  monthlyInstallment: decimal("monthly_installment", { precision: 15, scale: 2 }).notNull(),
+  remainingBalance: decimal("remaining_balance", { precision: 15, scale: 2 }).notNull(),
+  status: text("status").default("active").notNull(), // active, paid, overdue
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertLoanSchema = createInsertSchema(loans).omit({ id: true, createdAt: true });
+export type Loan = typeof loans.$inferSelect;
+export type InsertLoan = z.infer<typeof insertLoanSchema>;
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
+  loans: many(loans),
 }));
 
 export const accountsRelations = relations(accounts, ({ one, many }) => ({
@@ -78,6 +95,13 @@ export const transactionsRelations = relations(transactions, ({ one }) => ({
     fields: [transactions.toAccountId],
     references: [accounts.id],
     relationName: "toAccount",
+  }),
+}));
+
+export const loansRelations = relations(loans, ({ one }) => ({
+  user: one(users, {
+    fields: [loans.userId],
+    references: [users.id],
   }),
 }));
 

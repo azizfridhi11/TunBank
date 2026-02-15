@@ -34,6 +34,16 @@ async function seed() {
       isFrozen: false
     });
 
+    await storage.createLoan({
+      userId: user.id,
+      amount: "10000.00",
+      interestRate: "5.50",
+      durationMonths: 24,
+      monthlyInstallment: "440.94",
+      remainingBalance: "8500.00",
+      status: "active"
+    });
+
     await storage.createTransaction({
       fromAccountId: null,
       toAccountId: account.id,

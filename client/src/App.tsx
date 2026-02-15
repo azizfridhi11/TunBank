@@ -9,6 +9,7 @@ import Dashboard from "@/pages/dashboard";
 import Accounts from "@/pages/accounts";
 import Transfers from "@/pages/transfers";
 import Cards from "@/pages/cards";
+import Loans from "@/pages/loans";
 import { useUser } from "@/hooks/use-auth";
 import { Loader2 } from "lucide-react";
 
@@ -45,6 +46,9 @@ function Router() {
       </Route>
       <Route path="/cards">
         <ProtectedRoute component={Cards} />
+      </Route>
+      <Route path="/loans">
+        <ProtectedRoute component={Loans} />
       </Route>
       <Route path="/settings">
         {/* Placeholder for settings */}
