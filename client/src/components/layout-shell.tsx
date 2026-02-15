@@ -34,6 +34,7 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
     { href: "/accounts", label: "Accounts", icon: Wallet },
     { href: "/transfers", label: "Transfers", icon: ArrowRightLeft },
     { href: "/cards", label: "Cards", icon: CreditCard },
+    { href: "/loans", label: "Loans", icon: Wallet },
     { href: "/settings", label: "Settings", icon: Settings },
   ];
 
