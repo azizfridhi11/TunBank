@@ -1,16 +1,125 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import { setupAuth } from "./auth";
 import { storage } from "./storage";
+import { api } from "@shared/routes";
+import { z } from "zod";
+import { insertAccountSchema, insertTransactionSchema, insertCardSchema } from "@shared/schema";
+import Decimal from "decimal.js";
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
-  // put application routes here
-  // prefix all routes with /api
+  // Setup Auth (Passport)
+  setupAuth(app);
 
-  // use storage to perform CRUD operations on the storage interface
-  // e.g. storage.insertUser(user) or storage.getUserByUsername(username)
+  // === ACCOUNTS ===
+  app.get(api.accounts.list.path, async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    const accounts = await storage.getAccounts(req.user.id);
+    res.json(accounts);
+  });
+
+  app.post(api.accounts.create.path, async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    try {
+      const input = insertAccountSchema.parse(req.body);
+      const accountNumber = "AC" + Math.floor(Math.random() * 1000000000).toString();
+      const account = await storage.createAccount({ ...input, userId: req.user.id, accountNumber });
+      res.status(201).json(account);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({ message: err.errors[0].message });
+      }
+      throw err;
+    }
+  });
+
+  app.get(api.accounts.get.path, async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    const account = await storage.getAccount(Number(req.params.id));
+    if (!account) return res.sendStatus(404);
+    if (account.userId !== req.user.id && req.user.role !== 'admin') return res.sendStatus(403);
+    res.json(account);
+  });
+
+  // === TRANSACTIONS ===
+  app.get(api.transactions.list.path, async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    const transactions = await storage.getTransactions(req.user.id);
+    res.json(transactions);
+  });
+
+  app.post(api.transactions.create.path, async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    try {
+      const input = api.transactions.create.input.parse(req.body);
+      
+      // Basic transaction logic (Transfer)
+      if (input.fromAccountId && input.toAccountId) {
+        const fromAccount = await storage.getAccount(input.fromAccountId);
+        const toAccount = await storage.getAccount(input.toAccountId);
+
+        if (!fromAccount || !toAccount) {
+          return res.status(404).json({ message: "Account not found" });
+        }
+
+        // Verify ownership
+        if (fromAccount.userId !== req.user.id) return res.sendStatus(403);
+
+        // Check balance
+        const balance = new Decimal(fromAccount.balance);
+        const amount = new Decimal(input.amount.toString());
+
+        if (balance.lessThan(amount)) {
+          return res.status(400).json({ message: "Insufficient funds" });
+        }
+
+        // Execute Transfer
+        await storage.updateAccountBalance(fromAccount.id, balance.minus(amount).toString());
+        await storage.updateAccountBalance(toAccount.id, new Decimal(toAccount.balance).plus(amount).toString());
+      }
+      
+      const transaction = await storage.createTransaction({
+        ...input,
+        status: "completed", // Auto-complete for MVP
+        amount: input.amount.toString() // Ensure string for decimal
+      });
+      res.status(201).json(transaction);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({ message: err.errors[0].message });
+      }
+      throw err;
+    }
+  });
+
+  // === CARDS ===
+  app.get(api.cards.list.path, async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    const cards = await storage.getCards(req.user.id);
+    res.json(cards);
+  });
+
+  app.post(api.cards.create.path, async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    try {
+      const input = insertCardSchema.parse(req.body);
+      
+      // Verify account ownership
+      const account = await storage.getAccount(input.accountId);
+      if (!account || account.userId !== req.user.id) return res.sendStatus(403);
+
+      const card = await storage.createCard(input);
+      res.status(201).json(card);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({ message: err.errors[0].message });
+      }
+      throw err;
+    }
+  });
 
   return httpServer;
 }
