@@ -1,13 +1,33 @@
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, CreditCard, ArrowRightLeft, Settings, LogOut, Wallet } from "lucide-react";
+import { LayoutDashboard, CreditCard, ArrowRightLeft, Settings, LogOut, Wallet, Moon, Sun, Languages } from "lucide-react";
 import { useUser, useLogout } from "@/hooks/use-auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "react-i18next";
+import { useEffect, useState } from "react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 export function LayoutShell({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const { data: user } = useUser();
   const { mutate: logout } = useLogout();
+  const { t, i18n } = useTranslation();
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+
+  useEffect(() => {
+    const isDark = document.documentElement.classList.contains("dark");
+    setTheme(isDark ? "dark" : "light");
+  }, []);
+
+  const toggleTheme = () => {
+    const newTheme = theme === "light" ? "dark" : "light";
+    setTheme(newTheme);
+    if (newTheme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  };
 
   const navItems = [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -22,11 +42,11 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-background flex">
       {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-border hidden md:flex flex-col fixed h-full z-10">
+      <aside className="w-64 bg-sidebar border-r border-border hidden md:flex flex-col fixed h-full z-10">
         <div className="p-6 border-b border-border">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-white font-bold text-lg">N</span>
+              <span className="text-primary-foreground font-bold text-lg">N</span>
             </div>
             <span className="font-display font-bold text-xl text-foreground">NovaBank</span>
           </div>
@@ -42,21 +62,40 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
                   className={`
                     flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer
                     ${isActive 
-                      ? "bg-primary/5 text-primary" 
-                      : "text-muted-foreground hover:bg-slate-50 hover:text-foreground"
+                      ? "bg-sidebar-accent text-sidebar-accent-foreground" 
+                      : "text-muted-foreground hover:bg-sidebar-accent/50 hover:text-foreground"
                     }
                   `}
                 >
-                  <Icon className={`w-5 h-5 ${isActive ? "text-primary" : "text-slate-400"}`} />
-                  {item.label}
+                  <Icon className={`w-5 h-5 ${isActive ? "text-primary" : "text-muted-foreground"}`} />
+                  {t(item.label)}
                 </div>
               </Link>
             );
           })}
         </nav>
 
-        <div className="p-4 border-t border-border bg-slate-50/50">
-          <div className="flex items-center gap-3 mb-4 px-2">
+        <div className="p-4 border-t border-border bg-sidebar-accent/10 space-y-4">
+          <div className="flex items-center justify-between px-2">
+             <Button variant="ghost" size="icon" onClick={toggleTheme} title={t("Theme")}>
+                {theme === "light" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+             </Button>
+
+             <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" title={t("Language")}>
+                    <Languages className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => i18n.changeLanguage('en')}>English</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => i18n.changeLanguage('fr')}>Français</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => i18n.changeLanguage('ar')}>العربية</DropdownMenuItem>
+                </DropdownMenuContent>
+             </DropdownMenu>
+          </div>
+
+          <div className="flex items-center gap-3 px-2">
             <Avatar className="h-9 w-9 border border-border">
               <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${user.fullName}`} />
               <AvatarFallback>{user.fullName.substring(0, 2).toUpperCase()}</AvatarFallback>
@@ -72,13 +111,13 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
             onClick={() => logout()}
           >
             <LogOut className="w-4 h-4" />
-            Sign Out
+            {t("Sign Out")}
           </Button>
         </div>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 md:ml-64 min-h-screen bg-slate-50/50">
+      <main className="flex-1 md:ml-64 min-h-screen bg-background">
         <div className="max-w-7xl mx-auto p-4 md:p-8">
           {children}
         </div>
