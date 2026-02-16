@@ -17,7 +17,7 @@ type Message = {
 export default function ChatAssistant() {
   const { t } = useTranslation();
   const [messages, setMessages] = useState<Message[]>([
-    { role: "assistant", content: t("Hello! I'm your NovaBank assistant. How can I help you today?") }
+    { role: "assistant", content: t("Hello! I'm your TunBank assistant. How can I help you today?") }
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);

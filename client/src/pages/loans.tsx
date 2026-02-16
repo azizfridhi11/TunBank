@@ -68,6 +68,9 @@ function LoanCard({ loan, accounts }: { loan: Loan; accounts: Account[] }) {
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
 
+  const totalRepayment = Number(loan.amount) * (1 + Number(loan.interestRate) / 100);
+  const totalInterest = totalRepayment - Number(loan.amount);
+
   const repaymentSchema = z.object({
     accountId: z.coerce.number().min(1, t("Please select an account")),
     amount: z.coerce.number().min(1, t("Amount must be greater than 0")),
@@ -126,18 +129,33 @@ function LoanCard({ loan, accounts }: { loan: Loan; accounts: Account[] }) {
         </div>
       </CardHeader>
       <CardContent className="p-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="space-y-1">
+            <p className="text-sm text-muted-foreground">{t("Loan Amount")}</p>
+            <p className="text-xl font-bold">{formatCurrency(loan.amount)}</p>
+          </div>
           <div className="space-y-1">
             <p className="text-sm text-muted-foreground">{t("Remaining Balance")}</p>
-            <p className="text-2xl font-bold">{formatCurrency(loan.remainingBalance)}</p>
+            <p className="text-xl font-bold">{formatCurrency(loan.remainingBalance)}</p>
           </div>
           <div className="space-y-1">
             <p className="text-sm text-muted-foreground">{t("Monthly Installment")}</p>
-            <p className="text-2xl font-bold">{formatCurrency(loan.monthlyInstallment)}</p>
+            <p className="text-xl font-bold">{formatCurrency(loan.monthlyInstallment)}</p>
           </div>
           <div className="space-y-1">
             <p className="text-sm text-muted-foreground">{t("Interest Rate")}</p>
-            <p className="text-2xl font-bold">{loan.interestRate}%</p>
+            <p className="text-xl font-bold">{loan.interestRate}%</p>
+          </div>
+        </div>
+
+        <div className="mt-6 pt-6 border-t border-border grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="space-y-1">
+            <p className="text-sm text-muted-foreground">{t("Total Interest")}</p>
+            <p className="text-lg font-semibold">{formatCurrency(totalInterest.toString())}</p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-sm text-muted-foreground">{t("Total Repayment")}</p>
+            <p className="text-lg font-semibold">{formatCurrency(totalRepayment.toString())}</p>
           </div>
         </div>
 

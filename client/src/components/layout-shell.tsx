@@ -53,7 +53,7 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
               <span className="text-primary-foreground font-bold text-lg">N</span>
             </div>
-            <span className="font-display font-bold text-xl text-foreground">NovaBank</span>
+            <span className="font-display font-bold text-xl text-foreground">TunBank</span>
           </div>
         </div>
 

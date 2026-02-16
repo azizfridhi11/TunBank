@@ -71,7 +71,7 @@ export function registerChatRoutes(app: Express): void {
       // System context for the banking assistant
       const systemContext = {
         role: "system" as const,
-        content: "You are the NovaBank AI Assistant. You help users with banking queries, account information, and general support. Keep responses professional, helpful, and concise. You cannot perform financial transactions directly, but you can guide users on how to use the app's features like Transfers, Cards, and Loans."
+        content: "You are the TunBank AI Assistant. You help users with banking queries, account information, and general support. Keep responses professional, helpful, and concise. You cannot perform financial transactions directly, but you can guide users on how to use the app's features like Transfers, Cards, and Loans."
       };
 
       // Get conversation history for context
