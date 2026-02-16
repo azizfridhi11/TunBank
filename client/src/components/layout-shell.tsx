@@ -1,5 +1,8 @@
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, CreditCard, ArrowRightLeft, Settings, LogOut, Wallet, Moon, Sun, Languages } from "lucide-react";
+import { 
+  LayoutDashboard, CreditCard, ArrowRightLeft, Settings, 
+  LogOut, Wallet, Moon, Sun, Languages, MessageSquare 
+} from "lucide-react";
 import { useUser, useLogout } from "@/hooks/use-auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -35,6 +38,7 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
     { href: "/transfers", label: "Transfers", icon: ArrowRightLeft },
     { href: "/cards", label: "Cards", icon: CreditCard },
     { href: "/loans", label: "Loans", icon: Wallet },
+    { href: "/assistant", label: "Assistant", icon: MessageSquare },
     { href: "/settings", label: "Settings", icon: Settings },
   ];
 

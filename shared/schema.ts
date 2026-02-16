@@ -69,6 +69,8 @@ export const insertLoanSchema = createInsertSchema(loans).omit({ id: true, creat
 export type Loan = typeof loans.$inferSelect;
 export type InsertLoan = z.infer<typeof insertLoanSchema>;
 
+export * from "./models/chat";
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),

@@ -6,6 +6,8 @@ import { api } from "@shared/routes";
 import { z } from "zod";
 import { insertAccountSchema, insertTransactionSchema, insertCardSchema } from "@shared/schema";
 import Decimal from "decimal.js";
+import { registerChatRoutes } from "./replit_integrations/chat";
+import { registerImageRoutes } from "./replit_integrations/image";
 
 export async function registerRoutes(
   httpServer: Server,
@@ -13,6 +15,8 @@ export async function registerRoutes(
 ): Promise<Server> {
   // Setup Auth (Passport)
   setupAuth(app);
+  registerChatRoutes(app);
+  registerImageRoutes(app);
 
   // === ACCOUNTS ===
   app.get(api.accounts.list.path, async (req, res) => {
