@@ -3,13 +3,14 @@ import { storage } from "./storage";
 import { hashPassword } from "./auth";
 
 async function seed() {
-  const existingUser = await storage.getUserByUsername("demo@bank.com");
+  const email = "azizfrd@gmail.com";
+  const existingUser = await storage.getUserByUsername(email);
   if (!existingUser) {
-    const password = await hashPassword("demo123");
+    const password = await hashPassword("aziz123");
     const user = await storage.createUser({
-      email: "demo@bank.com",
+      email,
       password,
-      fullName: "Demo User",
+      fullName: "Aziz Frd",
       role: "user",
       isVerified: true,
       kycStatus: "approved",
@@ -28,7 +29,7 @@ async function seed() {
     await storage.createCard({
       accountId: account.id,
       cardNumber: "4532 **** **** 8899",
-      cardHolderName: "DEMO USER",
+      cardHolderName: "AZIZ FRD",
       expiryDate: "12/28",
       cvv: "123",
       isFrozen: false

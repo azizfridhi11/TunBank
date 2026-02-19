@@ -56,7 +56,7 @@ Pages: auth-page, dashboard, accounts, transfers, cards, loans, not-found. All b
 - Financial amounts are stored as decimal strings in the database and parsed to numbers on the frontend
 
 ### Seed Data
-- `server/seed.ts` creates a demo user (demo@bank.com / demo123) with sample account, card, loan, and transactions
+- `server/seed.ts` creates a demo user (azizfrd@gmail.com / aziz123) with sample account, card, loan, and transactions
 
 ### Shared Code (`shared/`)
 - `schema.ts` — Drizzle table definitions, insert schemas (via drizzle-zod), TypeScript types
