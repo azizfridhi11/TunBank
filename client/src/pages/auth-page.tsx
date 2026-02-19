@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, ShieldCheck } from "lucide-react";
+import logoImg from "@assets/OIP_1771533296748.jpeg";
 
 export default function AuthPage() {
   const [_, setLocation] = useLocation();
@@ -40,8 +41,8 @@ export default function AuthPage() {
       <div className="hidden md:flex flex-col justify-between w-1/2 bg-slate-900 p-12 text-white relative overflow-hidden">
         <div className="relative z-10">
           <div className="flex items-center gap-2 mb-8">
-            <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
-              <span className="font-bold text-white">T</span>
+            <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center">
+              <img src={logoImg} alt="TunBank Logo" className="w-full h-full object-cover" />
             </div>
             <span className="text-xl font-bold tracking-tight">TunBank</span>
           </div>

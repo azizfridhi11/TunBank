@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import logoImg from "@assets/OIP_1771533296748.jpeg";
 
 export function LayoutShell({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
@@ -50,8 +51,8 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
       <aside className="w-64 bg-sidebar border-r border-border hidden md:flex flex-col fixed h-full z-10">
         <div className="p-6 border-b border-border">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-lg">T</span>
+            <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center">
+              <img src={logoImg} alt="TunBank Logo" className="w-full h-full object-cover" />
             </div>
             <span className="font-display font-bold text-xl text-foreground">TunBank</span>
           </div>
