@@ -39,12 +39,12 @@ export default function ChatAssistant() {
 
     try {
       // 1. Ensure conversation exists
-      let convId = localStorage.getItem("novabank_conv_id");
+      let convId = localStorage.getItem("tunbank_conv_id");
       if (!convId) {
         const convRes = await apiRequest("POST", "/api/conversations", { title: "Banking Support" });
         const conv = await convRes.json();
         convId = conv.id.toString();
-        localStorage.setItem("novabank_conv_id", convId);
+        localStorage.setItem("tunbank_conv_id", convId);
       }
 
       // 2. Send message and stream response
@@ -108,7 +108,7 @@ export default function ChatAssistant() {
               <div className="p-2 bg-primary/10 rounded-full">
                 <Bot className="w-5 h-5 text-primary" />
               </div>
-              <CardTitle className="text-lg">{t("NovaBot Support")}</CardTitle>
+              <CardTitle className="text-lg">{t("TunBot Support")}</CardTitle>
             </div>
           </CardHeader>
           

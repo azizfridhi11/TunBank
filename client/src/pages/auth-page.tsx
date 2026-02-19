@@ -43,7 +43,7 @@ export default function AuthPage() {
             <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
               <span className="font-bold text-white">N</span>
             </div>
-            <span className="text-xl font-bold tracking-tight">NovaBank</span>
+            <span className="text-xl font-bold tracking-tight">TunBank</span>
           </div>
           <h1 className="text-5xl font-display font-bold mb-6 leading-tight">
             Banking built for <br />
@@ -149,7 +149,7 @@ function RegisterForm({ onSubmit, isLoading }: { onSubmit: (data: any) => Promis
     <Card className="border-0 shadow-xl bg-white/50 backdrop-blur-sm">
       <CardHeader>
         <CardTitle className="text-2xl font-display">Create an account</CardTitle>
-        <CardDescription>Get started with NovaBank today</CardDescription>
+        <CardDescription>Get started with TunBank today</CardDescription>
       </CardHeader>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <CardContent className="space-y-4">

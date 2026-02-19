@@ -76,7 +76,7 @@ function CreditCardItem({ card }: { card: any }) {
            <Wifi className="w-6 h-6 rotate-90" />
            <span className="font-mono text-sm opacity-80">Debit</span>
         </div>
-        <span className="font-bold text-lg italic">NovaBank</span>
+        <span className="font-bold text-lg italic">TunBank</span>
       </div>
 
       <div className="z-10 space-y-4">

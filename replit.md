@@ -1,8 +1,8 @@
-# NovaBank - Digital Banking Application
+# TunBank - Digital Banking Application
 
 ## Overview
 
-NovaBank is a full-stack digital banking web application that provides core banking features including account management, fund transfers, card management, loan tracking, and transaction history. It's built as a monorepo with a React frontend and Express backend, using PostgreSQL for data persistence. The app supports multilingual UI (English, French, Arabic), dark/light theme toggling, and session-based authentication.
+TunBank is a full-stack digital banking web application that provides core banking features including account management, fund transfers, card management, loan tracking, and transaction history. It's built as a monorepo with a React frontend and Express backend, using PostgreSQL for data persistence. The app supports multilingual UI (English, French, Arabic), dark/light theme toggling, and session-based authentication.
 
 ## User Preferences
 
