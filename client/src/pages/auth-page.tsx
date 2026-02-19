@@ -41,7 +41,7 @@ export default function AuthPage() {
         <div className="relative z-10">
           <div className="flex items-center gap-2 mb-8">
             <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
-              <span className="font-bold text-white">N</span>
+              <span className="font-bold text-white">T</span>
             </div>
             <span className="text-xl font-bold tracking-tight">TunBank</span>
           </div>
