@@ -4,7 +4,7 @@ import { setupAuth } from "./auth";
 import { storage } from "./storage";
 import { api } from "@shared/routes";
 import { z } from "zod";
-import { insertAccountSchema, insertTransactionSchema, insertCardSchema } from "@shared/schema";
+import { insertAccountSchema, insertTransactionSchema, insertCardSchema, rechargeSchema } from "@shared/schema";
 import Decimal from "decimal.js";
 import { registerChatRoutes } from "./replit_integrations/chat";
 import { registerImageRoutes } from "./replit_integrations/image";
@@ -17,6 +17,45 @@ export async function registerRoutes(
   setupAuth(app);
   registerChatRoutes(app);
   registerImageRoutes(app);
+
+  // === SERVICES / RECHARGE ===
+  app.post("/api/recharge", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    try {
+      const { accountId, provider, phoneNumber, amount } = rechargeSchema.parse(req.body);
+      const account = await storage.getAccount(accountId);
+      if (!account || account.userId !== req.user.id) {
+        return res.status(404).json({ message: "Account not found" });
+      }
+
+      const balance = new Decimal(account.balance);
+      const rechargeAmount = new Decimal(amount);
+
+      if (balance.lessThan(rechargeAmount)) {
+        return res.status(400).json({ message: "Insufficient funds" });
+      }
+
+      // Update balance
+      await storage.updateAccountBalance(account.id, balance.minus(rechargeAmount).toString());
+
+      // Create transaction
+      await storage.createTransaction({
+        fromAccountId: account.id,
+        toAccountId: null,
+        amount: rechargeAmount.toString(),
+        type: "recharge",
+        status: "completed",
+        description: `Mobile Recharge - ${provider} (${phoneNumber})`
+      });
+
+      res.json({ success: true });
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({ message: err.errors[0].message });
+      }
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
 
   // === ACCOUNTS ===
   app.get(api.accounts.list.path, async (req, res) => {

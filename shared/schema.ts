@@ -53,9 +53,12 @@ export const cards = pgTable("cards", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const loanTypeEnum = pgEnum("loan_type", ["personal", "mortgage", "auto", "education", "business", "micro"]);
+
 export const loans = pgTable("loans", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id).notNull(),
+  type: loanTypeEnum("type").default("personal").notNull(),
   amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
   interestRate: decimal("interest_rate", { precision: 5, scale: 2 }).notNull(),
   durationMonths: integer("duration_months").notNull(),
