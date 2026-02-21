@@ -38,6 +38,17 @@ export async function registerRoutes(
       // Update balance
       await storage.updateAccountBalance(account.id, balance.minus(rechargeAmount).toString());
 
+      // Create bill record
+      await storage.createBill({
+        userId: req.user.id,
+        accountId: account.id,
+        type: "mobile_recharge",
+        provider,
+        amount: rechargeAmount.toString(),
+        phoneNumber,
+        status: "completed"
+      });
+
       // Create transaction
       await storage.createTransaction({
         fromAccountId: account.id,

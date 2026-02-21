@@ -10,6 +10,7 @@ import Accounts from "@/pages/accounts";
 import Transfers from "@/pages/transfers";
 import Cards from "@/pages/cards";
 import Loans from "@/pages/loans";
+import Services from "@/pages/services";
 import ChatAssistant from "@/pages/chat-assistant";
 import { useUser } from "@/hooks/use-auth";
 import { Loader2 } from "lucide-react";
@@ -50,6 +51,9 @@ function Router() {
       </Route>
       <Route path="/loans">
         <ProtectedRoute component={Loans} />
+      </Route>
+      <Route path="/services">
+        <ProtectedRoute component={Services} />
       </Route>
       <Route path="/assistant">
         <ProtectedRoute component={ChatAssistant} />

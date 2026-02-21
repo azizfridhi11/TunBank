@@ -34,13 +34,13 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
   };
 
   const navItems = [
-    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/accounts", label: "Accounts", icon: Wallet },
-    { href: "/transfers", label: "Transfers", icon: ArrowRightLeft },
-    { href: "/cards", label: "Cards", icon: CreditCard },
-    { href: "/loans", label: "Loans", icon: Wallet },
-    { href: "/assistant", label: "Assistant", icon: MessageSquare },
-    { href: "/settings", label: "Settings", icon: Settings },
+    { href: "/dashboard", label: t("Dashboard"), icon: LayoutDashboard },
+    { href: "/accounts", label: t("Accounts"), icon: Wallet },
+    { href: "/transfers", label: t("Transfers"), icon: ArrowRightLeft },
+    { href: "/services", label: t("Services"), icon: Settings },
+    { href: "/cards", label: t("Cards"), icon: CreditCard },
+    { href: "/loans", label: t("Loans"), icon: Wallet },
+    { href: "/assistant", label: t("Assistant"), icon: MessageSquare },
   ];
 
   if (!user) return null;

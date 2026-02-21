@@ -26,6 +26,7 @@ export interface IStorage {
   getAccountByNumber(accountNumber: string): Promise<Account | undefined>;
   createAccount(account: InsertAccount & { accountNumber: string }): Promise<Account>;
   updateAccountBalance(id: number, amount: string): Promise<Account>;
+  createBill(bill: InsertBill): Promise<Bill>;
 
   // Transactions
   getTransactions(userId: number): Promise<Transaction[]>; // Get all transactions for a user's accounts
@@ -94,6 +95,11 @@ export class DatabaseStorage implements IStorage {
       .where(eq(accounts.id, id))
       .returning();
     return updated;
+  }
+
+  async createBill(bill: InsertBill): Promise<Bill> {
+    const [newBill] = await db.insert(bills).values(bill).returning();
+    return newBill;
   }
 
   async getTransactions(userId: number): Promise<Transaction[]> {

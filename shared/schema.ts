@@ -5,8 +5,28 @@ import { z } from "zod";
 
 export const userRoleEnum = pgEnum("user_role", ["user", "admin", "employee"]);
 export const accountTypeEnum = pgEnum("account_type", ["savings", "checking", "business"]);
-export const transactionTypeEnum = pgEnum("transaction_type", ["deposit", "withdrawal", "transfer", "payment"]);
+export const transactionTypeEnum = pgEnum("transaction_type", ["deposit", "withdrawal", "transfer", "payment", "recharge"]);
 export const transactionStatusEnum = pgEnum("transaction_status", ["pending", "completed", "failed"]);
+
+export const bills = pgTable("bills", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  accountId: integer("account_id").references(() => accounts.id).notNull(),
+  type: text("type").notNull(), // mobile_recharge, electricity, water, etc.
+  provider: text("provider").notNull(),
+  amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
+  phoneNumber: text("phone_number"),
+  referenceNumber: text("reference_number"),
+  status: transactionStatusEnum("status").default("completed").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const rechargeSchema = z.object({
+  accountId: z.number(),
+  provider: z.string().min(1, "Provider is required"),
+  phoneNumber: z.string().min(8, "Valid phone number is required"),
+  amount: z.string().refine(val => !isNaN(Number(val)) && Number(val) > 0, "Amount must be greater than 0"),
+});
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
