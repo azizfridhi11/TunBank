@@ -133,7 +133,7 @@ export default function Services() {
                         <SelectContent>
                           <SelectItem value="Ooredoo">Ooredoo</SelectItem>
                           <SelectItem value="Orange">Orange</SelectItem>
-                          <SelectItem value="Tunisie Telecom">Tunisie Telecom</SelectItem>
+                          <SelectItem value="Telecom">Tunisie Telecom</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
