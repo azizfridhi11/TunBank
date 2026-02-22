@@ -110,10 +110,10 @@ export default function Services() {
                   </DialogHeader>
                   <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                     <div className="space-y-2">
-                      <Label>{t("Select Account")}</Label>
+                      <Label>{t("Compte à débiter")}</Label>
                       <Select onValueChange={(val) => form.setValue("accountId", Number(val))}>
                         <SelectTrigger>
-                          <SelectValue placeholder={t("Choose an account")} />
+                          <SelectValue placeholder={t("Choisir un compte")} />
                         </SelectTrigger>
                         <SelectContent>
                           {accounts?.map(acc => (
@@ -125,10 +125,10 @@ export default function Services() {
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label>{t("Provider")}</Label>
+                      <Label>{t("Choisir votre opérateur")}</Label>
                       <Select onValueChange={(val) => form.setValue("provider", val)}>
                         <SelectTrigger>
-                          <SelectValue placeholder={t("Choose a provider")} />
+                          <SelectValue placeholder={t("Sélectionner un opérateur")} />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="Ooredoo">Ooredoo</SelectItem>
@@ -138,11 +138,11 @@ export default function Services() {
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label>{t("Phone Number")}</Label>
+                      <Label>{t("Numéro de téléphone")}</Label>
                       <Input placeholder="Ex: 22 123 456" {...form.register("phoneNumber")} />
                     </div>
                     <div className="space-y-2">
-                      <Label>{t("Amount (DT)")}</Label>
+                      <Label>{t("Montant de la recharge (DT)")}</Label>
                       <Input type="number" step="0.1" placeholder="Ex: 5.0" {...form.register("amount")} />
                     </div>
                     <Button type="submit" className="w-full" disabled={rechargeMutation.isPending}>
