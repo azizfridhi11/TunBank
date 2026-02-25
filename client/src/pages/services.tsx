@@ -2,7 +2,7 @@ import { LayoutShell } from "@/components/layout-shell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Phone, Receipt, Send, Download, GraduationCap, Landmark, Scale, ShoppingBag, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -23,6 +23,11 @@ export default function Services() {
   const [rechargeOpen, setRechargeOpen] = useState(false);
   const [factureOpen, setFactureOpen] = useState(false);
   const { toast } = useToast();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const services = [
     { id: "recharge", icon: Phone, title: t("Recharge Téléphonique"), color: "text-blue-500", bgColor: "bg-blue-50" },
@@ -114,9 +119,15 @@ export default function Services() {
     },
   });
 
+  const onRechargeSubmit = (data: any) => {
+    rechargeMutation.mutate(data);
+  };
+
   const onFactureSubmit = (data: any) => {
     factureMutation.mutate(data);
   };
+
+  if (!isClient) return null;
 
   return (
     <LayoutShell>
@@ -159,7 +170,7 @@ export default function Services() {
                   <DialogHeader>
                     <DialogTitle>{t("Recharge Téléphonique")}</DialogTitle>
                   </DialogHeader>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                  <form onSubmit={form.handleSubmit(onRechargeSubmit)} className="space-y-4">
                     <div className="space-y-2">
                       <Label>{t("Compte à débiter")}</Label>
                       <Select onValueChange={(val) => form.setValue("accountId", Number(val))}>

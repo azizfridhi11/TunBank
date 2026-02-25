@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { LayoutShell } from "@/components/layout-shell";
 import { useUser } from "@/hooks/use-auth";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -20,6 +21,12 @@ import { useTranslation } from "react-i18next";
 
 export default function Loans() {
   const { t } = useTranslation();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   const { data: loans, isLoading: isLoadingLoans } = useQuery<Loan[]>({ 
     queryKey: [api.loans.list.path] 
   });
@@ -27,7 +34,7 @@ export default function Loans() {
     queryKey: [api.accounts.list.path] 
   });
 
-  if (isLoadingLoans) {
+  if (!isClient || isLoadingLoans) {
     return (
       <LayoutShell>
         <div className="flex items-center justify-center h-64">
@@ -36,6 +43,8 @@ export default function Loans() {
       </LayoutShell>
     );
   }
+
+  if (!isClient) return null;
 
   return (
     <LayoutShell>
@@ -67,6 +76,11 @@ function LoanCard({ loan, accounts }: { loan: Loan; accounts: Account[] }) {
   const { t } = useTranslation();
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const totalRepayment = Number(loan.amount) * (1 + Number(loan.interestRate) / 100);
   const totalInterest = totalRepayment - Number(loan.amount);
@@ -203,4 +217,3 @@ function LoanCard({ loan, accounts }: { loan: Loan; accounts: Account[] }) {
   );
 }
 
-import { useState } from "react";
