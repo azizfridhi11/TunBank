@@ -10,7 +10,7 @@ async function seed() {
     const user = await storage.createUser({
       email,
       password,
-      fullName: "Aziz Frd",
+      fullName: "Aziz PFE",
       role: "user",
       isVerified: true,
       kycStatus: "approved",
@@ -29,7 +29,7 @@ async function seed() {
     await storage.createCard({
       accountId: account.id,
       cardNumber: "4532 **** **** 8899",
-      cardHolderName: "AZIZ FRD",
+      cardHolderName: "AZIZ PFE",
       expiryDate: "12/28",
       cvv: "123",
       isFrozen: false
