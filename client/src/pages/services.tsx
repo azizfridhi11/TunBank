@@ -1,6 +1,6 @@
 import { LayoutShell } from "@/components/layout-shell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Phone, Receipt, Send, Download, GraduationCap, Landmark, Scale, ShoppingBag } from "lucide-react";
+import { Phone, Receipt, Send, Download, GraduationCap, Landmark, Scale, ShoppingBag, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -13,10 +13,10 @@ import { Account } from "@shared/schema";
 import { api } from "@shared/routes";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import { rechargeSchema } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
-import { Loader2 } from "lucide-react";
 
 export default function Services() {
   const { t } = useTranslation();

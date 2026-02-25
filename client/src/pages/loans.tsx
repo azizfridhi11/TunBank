@@ -118,7 +118,7 @@ function LoanCard({ loan, accounts }: { loan: Loan; accounts: Account[] }) {
       <CardHeader className="bg-muted/30 pb-6">
         <div className="flex justify-between items-start">
           <div>
-            <CardTitle className="text-xl">{t("Personal Loan")}</CardTitle>
+            <CardTitle className="text-xl">{t(loan.type.charAt(0).toUpperCase() + loan.type.slice(1) + " Loan")}</CardTitle>
             <CardDescription>{t("ID")}: #{loan.id}</CardDescription>
           </div>
           <div className={`px-3 py-1 rounded-full text-xs font-medium ${

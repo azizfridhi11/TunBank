@@ -1,11 +1,12 @@
 import { db } from "./db";
 import {
-  users, accounts, transactions, cards, loans,
+  users, accounts, transactions, cards, loans, bills,
   type User, type InsertUser,
   type Account, type InsertAccount,
   type Transaction, type InsertTransaction,
   type Card, type InsertCard,
-  type Loan, type InsertLoan
+  type Loan, type InsertLoan,
+  type Bill, type InsertBill
 } from "@shared/schema";
 import { eq, or, desc } from "drizzle-orm";
 
