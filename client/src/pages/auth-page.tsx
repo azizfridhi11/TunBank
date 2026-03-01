@@ -219,6 +219,32 @@ function RegisterForm({ onSubmit, isLoading }: { onSubmit: (data: any) => Promis
           {form.formState.errors.email && <p className="text-xs text-destructive mt-1">{form.formState.errors.email.message}</p>}
         </div>
         <div className="space-y-2">
+          <Label htmlFor="idCard" className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">ID Card Number</Label>
+          <div className="relative">
+            <Smartphone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input 
+              id="idCard" 
+              {...form.register("idCardNumber")} 
+              placeholder="12345678" 
+              className="pl-10 h-12 bg-muted/30 border-muted focus:bg-background transition-all rounded-xl"
+            />
+          </div>
+          {form.formState.errors.idCardNumber && <p className="text-xs text-destructive mt-1">{form.formState.errors.idCardNumber.message}</p>}
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="bankCard" className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">Bank Card Number</Label>
+          <div className="relative">
+            <Landmark className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input 
+              id="bankCard" 
+              {...form.register("bankCardNumber")} 
+              placeholder="4532 **** **** 8899" 
+              className="pl-10 h-12 bg-muted/30 border-muted focus:bg-background transition-all rounded-xl"
+            />
+          </div>
+          {form.formState.errors.bankCardNumber && <p className="text-xs text-destructive mt-1">{form.formState.errors.bankCardNumber.message}</p>}
+        </div>
+        <div className="space-y-2">
           <Label htmlFor="password-reg" className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">Secure Password</Label>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />

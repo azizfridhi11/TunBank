@@ -35,6 +35,8 @@ export const users = pgTable("users", {
   fullName: text("full_name").notNull(),
   phoneNumber: text("phone_number"),
   role: userRoleEnum("role").default("user").notNull(),
+  idCardNumber: text("id_card_number"),
+  bankCardNumber: text("bank_card_number"),
   isVerified: boolean("is_verified").default(false),
   kycStatus: text("kyc_status").default("pending"), // pending, approved, rejected
   createdAt: timestamp("created_at").defaultNow(),
