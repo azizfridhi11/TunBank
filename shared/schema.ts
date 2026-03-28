@@ -48,7 +48,7 @@ export const accounts = pgTable("accounts", {
   accountNumber: text("account_number").notNull().unique(),
   type: accountTypeEnum("type").notNull(),
   balance: decimal("balance", { precision: 15, scale: 2 }).default("0.00").notNull(),
-  currency: text("currency").default("USD").notNull(),
+  currency: text("currency").default("TND").notNull(),
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
 });
@@ -61,6 +61,12 @@ export const transactions = pgTable("transactions", {
   type: transactionTypeEnum("type").notNull(),
   status: transactionStatusEnum("status").default("pending").notNull(),
   description: text("description"),
+  // International transfer fields
+  toCurrency: text("to_currency"),
+  exchangeRate: decimal("exchange_rate", { precision: 15, scale: 6 }),
+  convertedAmount: decimal("converted_amount", { precision: 15, scale: 2 }),
+  recipientCardNumber: text("recipient_card_number"),
+  recipientName: text("recipient_name"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

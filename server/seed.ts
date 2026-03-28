@@ -21,8 +21,8 @@ async function seed() {
       userId: user.id,
       accountNumber: "AC123456789",
       type: "checking",
-      currency: "USD",
-      balance: "5000.00",
+      currency: "TND",
+      balance: "5000.000",
       isActive: true
     });
 

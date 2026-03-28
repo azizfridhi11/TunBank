@@ -105,24 +105,32 @@ export async function registerRoutes(
     res.json(transactions);
   });
 
+  // Exchange rates (TND base)
+  const EXCHANGE_RATES: Record<string, Record<string, number>> = {
+    TND: { TND: 1, USD: 0.34, EUR: 0.31, GBP: 0.27 },
+    USD: { TND: 2.94, USD: 1, EUR: 0.91, GBP: 0.79 },
+    EUR: { TND: 3.22, USD: 1.10, EUR: 1, GBP: 0.87 },
+    GBP: { TND: 3.70, USD: 1.27, EUR: 1.15, GBP: 1 },
+  };
+
   app.post(api.transactions.create.path, async (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
     try {
       const input = api.transactions.create.input.parse(req.body);
       
+      // Extract international transfer extra fields
+      const { toCurrency, recipientCardNumber, recipientName } = req.body as {
+        toCurrency?: string;
+        recipientCardNumber?: string;
+        recipientName?: string;
+      };
+
       // Basic transaction logic (Transfer)
-      if (input.fromAccountId && input.toAccountId) {
+      if (input.fromAccountId) {
         const fromAccount = await storage.getAccount(input.fromAccountId);
-        const toAccount = await storage.getAccount(input.toAccountId);
-
-        if (!fromAccount || !toAccount) {
-          return res.status(404).json({ message: "Account not found" });
-        }
-
-        // Verify ownership
+        if (!fromAccount) return res.status(404).json({ message: "Account not found" });
         if (fromAccount.userId !== req.user.id) return res.sendStatus(403);
 
-        // Check balance
         const balance = new Decimal(fromAccount.balance);
         const amount = new Decimal(input.amount.toString());
 
@@ -130,15 +138,42 @@ export async function registerRoutes(
           return res.status(400).json({ message: "Insufficient funds" });
         }
 
-        // Execute Transfer
         await storage.updateAccountBalance(fromAccount.id, balance.minus(amount).toString());
-        await storage.updateAccountBalance(toAccount.id, new Decimal(toAccount.balance).plus(amount).toString());
+
+        // Local transfer: also credit the destination account
+        if (input.toAccountId && !toCurrency) {
+          const toAccount = await storage.getAccount(input.toAccountId);
+          if (toAccount) {
+            await storage.updateAccountBalance(toAccount.id, new Decimal(toAccount.balance).plus(amount).toString());
+          }
+        }
+      }
+
+      // Get from account currency for international transfers
+      let fromCurrency = "TND";
+      if (input.fromAccountId) {
+        const fromAcc = await storage.getAccount(input.fromAccountId);
+        fromCurrency = fromAcc?.currency || "TND";
+      }
+
+      let txExchangeRate: string | undefined;
+      let txConvertedAmount: string | undefined;
+      if (toCurrency && toCurrency !== fromCurrency) {
+        const rate = EXCHANGE_RATES[fromCurrency]?.[toCurrency] || 1;
+        const amt = new Decimal(input.amount.toString());
+        txExchangeRate = rate.toString();
+        txConvertedAmount = amt.mul(rate).toFixed(2);
       }
       
       const transaction = await storage.createTransaction({
         ...input,
-        status: "completed", // Auto-complete for MVP
-        amount: input.amount.toString() // Ensure string for decimal
+        status: "completed",
+        amount: input.amount.toString(),
+        toCurrency: toCurrency || null,
+        exchangeRate: txExchangeRate || null,
+        convertedAmount: txConvertedAmount || null,
+        recipientCardNumber: recipientCardNumber || null,
+        recipientName: recipientName || null,
       });
       res.status(201).json(transaction);
     } catch (err) {
