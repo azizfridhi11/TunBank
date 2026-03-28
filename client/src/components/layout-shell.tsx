@@ -23,6 +23,12 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
     setTheme(isDark ? "dark" : "light");
   }, []);
 
+  useEffect(() => {
+    const isRTL = i18n.language === 'ar' || i18n.language === 'tn';
+    document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
+    document.documentElement.lang = i18n.language;
+  }, [i18n.language]);
+
   const toggleTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light";
     setTheme(newTheme);
@@ -34,13 +40,13 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
   };
 
   const navItems = [
-    { href: "/dashboard", label: t("Dashboard"), icon: LayoutDashboard },
-    { href: "/accounts", label: t("Accounts"), icon: Wallet },
-    { href: "/transfers", label: t("Transfers"), icon: ArrowRightLeft },
-    { href: "/services", label: t("Services"), icon: Settings },
-    { href: "/cards", label: t("Cards"), icon: CreditCard },
-    { href: "/loans", label: t("Loans"), icon: Wallet },
-    { href: "/assistant", label: t("Assistant"), icon: MessageSquare },
+    { href: "/dashboard", labelKey: "Dashboard", icon: LayoutDashboard },
+    { href: "/accounts", labelKey: "Accounts", icon: Wallet },
+    { href: "/transfers", labelKey: "Transfers", icon: ArrowRightLeft },
+    { href: "/services", labelKey: "Services", icon: Settings },
+    { href: "/cards", labelKey: "Cards", icon: CreditCard },
+    { href: "/loans", labelKey: "Loans", icon: Wallet },
+    { href: "/assistant", labelKey: "Assistant", icon: MessageSquare },
   ];
 
   if (!user) return null;
@@ -74,7 +80,7 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
                   `}
                 >
                   <Icon className={`w-5 h-5 ${isActive ? "text-primary" : "text-muted-foreground"}`} />
-                  {t(item.label)}
+                  {t(item.labelKey)}
                 </div>
               </Link>
             );
@@ -97,6 +103,7 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
                   <DropdownMenuItem onClick={() => i18n.changeLanguage('en')}>English</DropdownMenuItem>
                   <DropdownMenuItem onClick={() => i18n.changeLanguage('fr')}>Français</DropdownMenuItem>
                   <DropdownMenuItem onClick={() => i18n.changeLanguage('ar')}>العربية</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => i18n.changeLanguage('tn')}>🇹🇳 دارجة</DropdownMenuItem>
                 </DropdownMenuContent>
              </DropdownMenu>
           </div>
