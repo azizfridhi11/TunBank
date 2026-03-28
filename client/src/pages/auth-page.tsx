@@ -9,13 +9,14 @@ import { useLogin, useRegister, useUser } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, ShieldCheck, Lock, Landmark, User, Mail, Smartphone } from "lucide-react";
 import logoImg from "@assets/OIP_1771533296748.jpeg";
+import { useTranslation } from "react-i18next";
 
 export default function AuthPage() {
   const [_, setLocation] = useLocation();
+  const { t } = useTranslation();
   const { data: user, isLoading: isLoadingUser } = useUser();
   const { mutateAsync: login, isPending: isLoginPending } = useLogin();
   const { mutateAsync: register, isPending: isRegisterPending } = useRegister();
@@ -78,13 +79,12 @@ export default function AuthPage() {
           </div>
         </div>
 
-        {/* Cinematic Background elements */}
         <div className="absolute -top-24 -right-24 w-96 h-96 bg-white/5 rounded-full blur-[120px]" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.03)_0%,transparent_70%)]" />
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-[0.03] pointer-events-none" />
       </div>
 
-      {/* Right Side - Sleek Security-Focused Form */}
+      {/* Right Side */}
       <div className="flex-1 flex items-center justify-center p-8 lg:p-16 bg-background relative">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center md:hidden mb-12">
@@ -95,14 +95,14 @@ export default function AuthPage() {
           </div>
 
           <div className="space-y-2 text-center mb-8">
-            <h2 className="text-3xl font-bold tracking-tight">Secure Access</h2>
-            <p className="text-muted-foreground">Welcome to your digital vault</p>
+            <h2 className="text-3xl font-bold tracking-tight">{t("Secure Access")}</h2>
+            <p className="text-muted-foreground">{t("Welcome to your digital vault")}</p>
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2 h-12 p-1 bg-muted rounded-xl mb-8">
-              <TabsTrigger value="login" className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">Sign In</TabsTrigger>
-              <TabsTrigger value="register" className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">Register</TabsTrigger>
+              <TabsTrigger value="login" className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">{t("Sign In")}</TabsTrigger>
+              <TabsTrigger value="register" className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">{t("Register")}</TabsTrigger>
             </TabsList>
             
             <TabsContent value="login" className="mt-0 focus-visible:outline-none">
@@ -127,7 +127,7 @@ export default function AuthPage() {
           </Tabs>
 
           <p className="text-center text-sm text-muted-foreground pt-8">
-            Having trouble logging in? <Button variant="link" className="p-0 h-auto font-semibold">Contact Support</Button>
+            {t("Having trouble logging in?")} <Button variant="link" className="p-0 h-auto font-semibold">{t("Contact Support")}</Button>
           </p>
         </div>
       </div>
@@ -136,6 +136,7 @@ export default function AuthPage() {
 }
 
 function LoginForm({ onSubmit, isLoading }: { onSubmit: (data: any) => Promise<void>, isLoading: boolean }) {
+  const { t } = useTranslation();
   const form = useForm({
     resolver: zodResolver(api.auth.login.input),
     defaultValues: { username: "", password: "" }
@@ -145,7 +146,7 @@ function LoginForm({ onSubmit, isLoading }: { onSubmit: (data: any) => Promise<v
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
       <div className="space-y-5">
         <div className="space-y-2">
-          <Label htmlFor="username" className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">Email or Username</Label>
+          <Label htmlFor="username" className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">{t("Email or Username")}</Label>
           <div className="relative">
             <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input 
@@ -159,8 +160,8 @@ function LoginForm({ onSubmit, isLoading }: { onSubmit: (data: any) => Promise<v
         </div>
         <div className="space-y-2">
           <div className="flex justify-between items-center ml-1">
-            <Label htmlFor="password" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Password</Label>
-            <Button variant="link" className="text-xs p-0 h-auto font-medium text-muted-foreground hover:text-primary">Forgot?</Button>
+            <Label htmlFor="password" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{t("Password")}</Label>
+            <Button variant="link" className="text-xs p-0 h-auto font-medium text-muted-foreground hover:text-primary">{t("Forgot?")}</Button>
           </div>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -176,13 +177,14 @@ function LoginForm({ onSubmit, isLoading }: { onSubmit: (data: any) => Promise<v
         </div>
       </div>
       <Button type="submit" className="w-full h-12 rounded-xl text-base font-bold shadow-lg shadow-primary/10 hover:shadow-primary/20 transition-all" disabled={isLoading}>
-        {isLoading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : "Authenticate Securely"}
+        {isLoading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : t("Authenticate Securely")}
       </Button>
     </form>
   );
 }
 
 function RegisterForm({ onSubmit, isLoading }: { onSubmit: (data: any) => Promise<void>, isLoading: boolean }) {
+  const { t } = useTranslation();
   const form = useForm({
     resolver: zodResolver(insertUserSchema),
     defaultValues: { fullName: "", email: "", password: "" }
@@ -192,7 +194,7 @@ function RegisterForm({ onSubmit, isLoading }: { onSubmit: (data: any) => Promis
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
       <div className="space-y-5">
         <div className="space-y-2">
-          <Label htmlFor="fullName" className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">Full Name</Label>
+          <Label htmlFor="fullName" className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">{t("Full Name")}</Label>
           <div className="relative">
             <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input 
@@ -205,7 +207,7 @@ function RegisterForm({ onSubmit, isLoading }: { onSubmit: (data: any) => Promis
           {form.formState.errors.fullName && <p className="text-xs text-destructive mt-1">{form.formState.errors.fullName.message}</p>}
         </div>
         <div className="space-y-2">
-          <Label htmlFor="email" className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">Email Address</Label>
+          <Label htmlFor="email" className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">{t("Email Address")}</Label>
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input 
@@ -219,7 +221,7 @@ function RegisterForm({ onSubmit, isLoading }: { onSubmit: (data: any) => Promis
           {form.formState.errors.email && <p className="text-xs text-destructive mt-1">{form.formState.errors.email.message}</p>}
         </div>
         <div className="space-y-2">
-          <Label htmlFor="idCard" className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">ID Card Number</Label>
+          <Label htmlFor="idCard" className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">{t("ID Card Number")}</Label>
           <div className="relative">
             <Smartphone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input 
@@ -232,7 +234,7 @@ function RegisterForm({ onSubmit, isLoading }: { onSubmit: (data: any) => Promis
           {form.formState.errors.idCardNumber && <p className="text-xs text-destructive mt-1">{form.formState.errors.idCardNumber.message}</p>}
         </div>
         <div className="space-y-2">
-          <Label htmlFor="bankCard" className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">Bank Card Number</Label>
+          <Label htmlFor="bankCard" className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">{t("Bank Card Number")}</Label>
           <div className="relative">
             <Landmark className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input 
@@ -245,14 +247,14 @@ function RegisterForm({ onSubmit, isLoading }: { onSubmit: (data: any) => Promis
           {form.formState.errors.bankCardNumber && <p className="text-xs text-destructive mt-1">{form.formState.errors.bankCardNumber.message}</p>}
         </div>
         <div className="space-y-2">
-          <Label htmlFor="password-reg" className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">Secure Password</Label>
+          <Label htmlFor="password-reg" className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">{t("Secure Password")}</Label>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input 
               id="password-reg" 
               type="password" 
               {...form.register("password")} 
-              placeholder="At least 8 characters" 
+              placeholder="••••••••" 
               className="pl-10 h-12 bg-muted/30 border-muted focus:bg-background transition-all rounded-xl"
             />
           </div>
@@ -260,7 +262,7 @@ function RegisterForm({ onSubmit, isLoading }: { onSubmit: (data: any) => Promis
         </div>
       </div>
       <Button type="submit" className="w-full h-12 rounded-xl text-base font-bold shadow-lg shadow-primary/10 hover:shadow-primary/20 transition-all" disabled={isLoading}>
-        {isLoading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : "Establish Membership"}
+        {isLoading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : t("Establish Membership")}
       </Button>
     </form>
   );

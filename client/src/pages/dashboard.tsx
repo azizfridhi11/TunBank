@@ -61,7 +61,7 @@ export default function Dashboard() {
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold">{t("Recent Transactions")}</h2>
               <Link href="/transfers">
-                <Button variant="ghost" className="text-sm">View All <ArrowRight className="w-4 h-4 ml-1" /></Button>
+                <Button variant="ghost" className="text-sm">{t("View All")} <ArrowRight className="w-4 h-4 ml-1" /></Button>
               </Link>
             </div>
             {isLoadingTransactions ? (

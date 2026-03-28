@@ -10,8 +10,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
-// Schema for the form - slightly different from API schema because we select accounts
 const transferFormSchema = z.object({
   fromAccountId: z.string(),
   toAccountId: z.string(),
@@ -23,6 +23,7 @@ export default function Transfers() {
   const { data: transactions } = useTransactions();
   const { data: accounts } = useAccounts();
   const { mutate: createTransaction, isPending } = useCreateTransaction();
+  const { t } = useTranslation();
 
   const form = useForm({
     resolver: zodResolver(transferFormSchema),
@@ -32,7 +33,7 @@ export default function Transfers() {
     createTransaction({
       fromAccountId: parseInt(data.fromAccountId),
       toAccountId: parseInt(data.toAccountId),
-      amount: data.amount, // API schema coerces this to number
+      amount: data.amount,
       type: "transfer",
       description: data.description,
       status: "completed"
@@ -44,47 +45,46 @@ export default function Transfers() {
     <LayoutShell>
       <div className="grid lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
-          <h1 className="text-3xl font-display font-bold">Transfer History</h1>
-          <div className="bg-white rounded-xl shadow-sm border border-border p-6">
+          <h1 className="text-3xl font-display font-bold">{t("Transfer History")}</h1>
+          <div className="bg-card rounded-xl shadow-sm border border-border p-6">
              <TransactionList transactions={transactions || []} />
           </div>
         </div>
 
         <div className="space-y-6">
-          <h2 className="text-2xl font-display font-bold">New Transfer</h2>
-          <Card className="border-0 shadow-lg bg-white">
+          <h2 className="text-2xl font-display font-bold">{t("New Transfer")}</h2>
+          <Card className="border shadow-lg">
             <CardHeader>
-              <CardTitle>Move Funds</CardTitle>
+              <CardTitle>{t("Move Funds")}</CardTitle>
             </CardHeader>
             <CardContent>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <div className="space-y-2">
-                  <Label>From Account</Label>
+                  <Label>{t("From Account")}</Label>
                   <Select onValueChange={(val) => form.setValue("fromAccountId", val)}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select account" />
+                      <SelectValue placeholder={t("Select account")} />
                     </SelectTrigger>
                     <SelectContent>
                       {accounts?.map((acc) => (
                         <SelectItem key={acc.id} value={acc.id.toString()}>
-                          {acc.type.toUpperCase()} - {acc.accountNumber.slice(-4)} (${acc.balance})
+                          {acc.type.toUpperCase()} - {acc.accountNumber.slice(-4)} ({acc.balance} DT)
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                   {form.formState.errors.fromAccountId && (
-                    <span className="text-xs text-destructive">Required</span>
+                    <span className="text-xs text-destructive">{t("Required")}</span>
                   )}
                 </div>
 
                 <div className="space-y-2">
-                  <Label>To Account</Label>
+                  <Label>{t("To Account")}</Label>
                    <Select onValueChange={(val) => form.setValue("toAccountId", val)}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select recipient" />
+                      <SelectValue placeholder={t("Select recipient")} />
                     </SelectTrigger>
                     <SelectContent>
-                      {/* For demo, we just list the same accounts. In real app, could be external */}
                       {accounts?.map((acc) => (
                         <SelectItem key={acc.id} value={acc.id.toString()}>
                            {acc.type.toUpperCase()} - {acc.accountNumber.slice(-4)}
@@ -93,12 +93,12 @@ export default function Transfers() {
                     </SelectContent>
                   </Select>
                   {form.formState.errors.toAccountId && (
-                     <span className="text-xs text-destructive">Required</span>
+                     <span className="text-xs text-destructive">{t("Required")}</span>
                   )}
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Amount</Label>
+                  <Label>{t("Amount")}</Label>
                   <Input 
                     type="number" 
                     placeholder="0.00" 
@@ -110,16 +110,16 @@ export default function Transfers() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label>Description (Optional)</Label>
+                  <Label>{t("Description (Optional)")}</Label>
                   <Input 
-                    placeholder="Rent, Groceries, etc." 
+                    placeholder={t("Rent, Groceries, etc.")}
                     {...form.register("description")} 
                   />
                 </div>
 
                 <Button type="submit" className="w-full" disabled={isPending}>
                   {isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                  Transfer Funds
+                  {t("Transfer Funds")}
                 </Button>
               </form>
             </CardContent>
