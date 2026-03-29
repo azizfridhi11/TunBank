@@ -1,7 +1,8 @@
 import { Link, useLocation } from "wouter";
 import { 
   LayoutDashboard, CreditCard, ArrowRightLeft, Settings, 
-  LogOut, Wallet, Moon, Sun, Languages, MessageSquare 
+  LogOut, Wallet, Moon, Sun, Languages, MessageSquare, Palette,
+  PieChart
 } from "lucide-react";
 import { useUser, useLogout } from "@/hooks/use-auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -9,7 +10,41 @@ import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import logoImg from "@assets/OIP_1771533296748.jpeg";
+
+// ─── Accent Color System ───────────────────────────────────────────────────────
+const THEME_COLORS = [
+  { name: "Default",  hex: "#111111", h: 0,   s: 0,   l: 9,  fgLight: "0 0% 98%", fgDark: "0 0% 9%"  },
+  { name: "Red",      hex: "#ef4444", h: 0,   s: 84,  l: 60, fgLight: "0 0% 98%", fgDark: "0 0% 98%" },
+  { name: "Orange",   hex: "#f97316", h: 24,  s: 95,  l: 53, fgLight: "0 0% 98%", fgDark: "0 0% 98%" },
+  { name: "Amber",    hex: "#f59e0b", h: 38,  s: 92,  l: 50, fgLight: "0 0% 9%",  fgDark: "0 0% 9%"  },
+  { name: "Yellow",   hex: "#eab308", h: 45,  s: 93,  l: 47, fgLight: "0 0% 9%",  fgDark: "0 0% 9%"  },
+  { name: "Lime",     hex: "#84cc16", h: 83,  s: 81,  l: 44, fgLight: "0 0% 9%",  fgDark: "0 0% 9%"  },
+  { name: "Green",    hex: "#22c55e", h: 142, s: 71,  l: 45, fgLight: "0 0% 98%", fgDark: "0 0% 98%" },
+  { name: "Teal",     hex: "#14b8a6", h: 174, s: 72,  l: 40, fgLight: "0 0% 98%", fgDark: "0 0% 98%" },
+  { name: "Cyan",     hex: "#06b6d4", h: 189, s: 94,  l: 43, fgLight: "0 0% 98%", fgDark: "0 0% 98%" },
+  { name: "Blue",     hex: "#3b82f6", h: 217, s: 91,  l: 60, fgLight: "0 0% 98%", fgDark: "0 0% 98%" },
+  { name: "Indigo",   hex: "#6366f1", h: 239, s: 84,  l: 67, fgLight: "0 0% 98%", fgDark: "0 0% 98%" },
+  { name: "Violet",   hex: "#8b5cf6", h: 263, s: 90,  l: 64, fgLight: "0 0% 98%", fgDark: "0 0% 98%" },
+  { name: "Purple",   hex: "#a855f7", h: 270, s: 91,  l: 65, fgLight: "0 0% 98%", fgDark: "0 0% 98%" },
+  { name: "Fuchsia",  hex: "#d946ef", h: 292, s: 84,  l: 60, fgLight: "0 0% 98%", fgDark: "0 0% 98%" },
+  { name: "Pink",     hex: "#ec4899", h: 330, s: 81,  l: 60, fgLight: "0 0% 98%", fgDark: "0 0% 98%" },
+  { name: "Rose",     hex: "#f43f5e", h: 352, s: 95,  l: 61, fgLight: "0 0% 98%", fgDark: "0 0% 98%" },
+];
+
+function applyAccentColor(color: typeof THEME_COLORS[0]) {
+  const r = document.documentElement;
+  const isDark = r.classList.contains("dark");
+  const primary = `${color.h} ${color.s}% ${color.l}%`;
+  const fg = isDark ? color.fgDark : color.fgLight;
+  r.style.setProperty("--primary", primary);
+  r.style.setProperty("--primary-foreground", fg);
+  r.style.setProperty("--ring", primary);
+  r.style.setProperty("--sidebar-primary", primary);
+  r.style.setProperty("--sidebar-primary-foreground", fg);
+  localStorage.setItem("tunbank_accent", color.name);
+}
 
 export function LayoutShell({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
@@ -17,6 +52,7 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
   const { mutate: logout } = useLogout();
   const { t, i18n } = useTranslation();
   const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [accentName, setAccentName] = useState("Default");
 
   useEffect(() => {
     const isDark = document.documentElement.classList.contains("dark");
@@ -29,6 +65,15 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
     document.documentElement.lang = i18n.language;
   }, [i18n.language]);
 
+  // Restore saved accent on mount
+  useEffect(() => {
+    const saved = localStorage.getItem("tunbank_accent");
+    if (saved) {
+      const color = THEME_COLORS.find(c => c.name === saved);
+      if (color) { applyAccentColor(color); setAccentName(color.name); }
+    }
+  }, []);
+
   const toggleTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light";
     setTheme(newTheme);
@@ -37,19 +82,30 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
     } else {
       document.documentElement.classList.remove("dark");
     }
+    // Re-apply accent after theme change
+    const color = THEME_COLORS.find(c => c.name === accentName) || THEME_COLORS[0];
+    setTimeout(() => applyAccentColor(color), 10);
+  };
+
+  const handleAccent = (color: typeof THEME_COLORS[0]) => {
+    applyAccentColor(color);
+    setAccentName(color.name);
   };
 
   const navItems = [
-    { href: "/dashboard", labelKey: "Dashboard", icon: LayoutDashboard },
-    { href: "/accounts", labelKey: "Accounts", icon: Wallet },
-    { href: "/transfers", labelKey: "Transfers", icon: ArrowRightLeft },
-    { href: "/services", labelKey: "Services", icon: Settings },
-    { href: "/cards", labelKey: "Cards", icon: CreditCard },
-    { href: "/loans", labelKey: "Loans", icon: Wallet },
-    { href: "/assistant", labelKey: "Assistant", icon: MessageSquare },
+    { href: "/dashboard",  labelKey: "Dashboard",  icon: LayoutDashboard },
+    { href: "/accounts",   labelKey: "Accounts",   icon: Wallet },
+    { href: "/transfers",  labelKey: "Transfers",  icon: ArrowRightLeft },
+    { href: "/services",   labelKey: "Services",   icon: Settings },
+    { href: "/cards",      labelKey: "Cards",      icon: CreditCard },
+    { href: "/loans",      labelKey: "Loans",      icon: Wallet },
+    { href: "/analytics",  labelKey: "Analytics",  icon: PieChart },
+    { href: "/assistant",  labelKey: "Assistant",  icon: MessageSquare },
   ];
 
   if (!user) return null;
+
+  const currentColor = THEME_COLORS.find(c => c.name === accentName) || THEME_COLORS[0];
 
   return (
     <div className="min-h-screen bg-background flex">
@@ -70,15 +126,13 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
             const Icon = item.icon;
             return (
               <Link key={item.href} href={item.href}>
-                <div
-                  className={`
-                    flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer
-                    ${isActive 
-                      ? "bg-sidebar-accent text-sidebar-accent-foreground" 
-                      : "text-muted-foreground hover:bg-sidebar-accent/50 hover:text-foreground"
-                    }
-                  `}
-                >
+                <div className={`
+                  flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer
+                  ${isActive 
+                    ? "bg-sidebar-accent text-sidebar-accent-foreground" 
+                    : "text-muted-foreground hover:bg-sidebar-accent/50 hover:text-foreground"
+                  }
+                `}>
                   <Icon className={`w-5 h-5 ${isActive ? "text-primary" : "text-muted-foreground"}`} />
                   {t(item.labelKey)}
                 </div>
@@ -88,26 +142,62 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
         </nav>
 
         <div className="p-4 border-t border-border bg-sidebar-accent/10 space-y-4">
+          {/* Controls row */}
           <div className="flex items-center justify-between px-2">
-             <Button variant="ghost" size="icon" onClick={toggleTheme} title={t("Theme")}>
-                {theme === "light" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
-             </Button>
+            {/* Theme toggle */}
+            <Button variant="ghost" size="icon" onClick={toggleTheme} title={t("Theme")}>
+              {theme === "light" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+            </Button>
 
-             <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" title={t("Language")}>
-                    <Languages className="h-5 w-5" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => i18n.changeLanguage('en')}>English</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => i18n.changeLanguage('fr')}>Français</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => i18n.changeLanguage('ar')}>العربية</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => i18n.changeLanguage('tn')}>🇹🇳 دارجة</DropdownMenuItem>
-                </DropdownMenuContent>
-             </DropdownMenu>
+            {/* Accent Color Picker */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="ghost" size="icon" title="Accent Color" className="relative">
+                  <Palette className="h-5 w-5" />
+                  {/* Current color dot */}
+                  <span
+                    className="absolute bottom-1 right-1 w-2 h-2 rounded-full ring-1 ring-white"
+                    style={{ backgroundColor: currentColor.hex }}
+                  />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent side="top" align="center" className="w-64 p-3">
+                <p className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wider">Accent Color</p>
+                <div className="grid grid-cols-8 gap-1.5">
+                  {THEME_COLORS.map((color) => (
+                    <button
+                      key={color.name}
+                      onClick={() => handleAccent(color)}
+                      title={color.name}
+                      className={`
+                        w-6 h-6 rounded-full transition-all duration-200 hover:scale-125 focus:outline-none
+                        ${accentName === color.name ? "ring-2 ring-offset-2 ring-foreground scale-110" : ""}
+                      `}
+                      style={{ backgroundColor: color.hex }}
+                    />
+                  ))}
+                </div>
+                <p className="text-xs text-center text-muted-foreground mt-2">{currentColor.name}</p>
+              </PopoverContent>
+            </Popover>
+
+            {/* Language switcher */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" title={t("Language")}>
+                  <Languages className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => i18n.changeLanguage('en')}>English</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => i18n.changeLanguage('fr')}>Français</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => i18n.changeLanguage('ar')}>العربية</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => i18n.changeLanguage('tn')}>🇹🇳 دارجة</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
+          {/* User info */}
           <div className="flex items-center gap-3 px-2">
             <Avatar className="h-9 w-9 border border-border">
               <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${user.fullName}`} />
@@ -118,6 +208,7 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
               <p className="text-xs text-muted-foreground truncate">{user.email}</p>
             </div>
           </div>
+
           <Button 
             variant="outline" 
             className="w-full justify-start gap-2 text-muted-foreground hover:text-destructive hover:bg-destructive/5 hover:border-destructive/20"

@@ -156,6 +156,19 @@ const translations = {
     "Hello! I'm your TunBank assistant. How can I help you today?": "Hello! I'm your TunBank assistant. How can I help you today?",
     "Sorry, I'm having trouble connecting right now.": "Sorry, I'm having trouble connecting right now.",
 
+    // Analytics
+    "Analytics": "Analytics",
+    "Smart Spending Analyzer": "Smart Spending Analyzer",
+    "Understand where your money goes each month": "Understand where your money goes each month",
+    "Total Spent": "Total Spent",
+    "Total Received": "Total Received",
+    "Top Category": "Top Category",
+    "No spending data yet": "No spending data yet",
+    "Make some transactions and come back here to see your analysis": "Make some transactions and come back to see your spending analysis.",
+    "Spending Distribution": "Spending Distribution",
+    "Category Breakdown": "Category Breakdown",
+    "Spending by Category": "Spending by Category",
+
     // General
     "Success": "Success",
     "Error": "Error",
@@ -307,6 +320,19 @@ const translations = {
     "Hello! I'm your TunBank assistant. How can I help you today?": "Bonjour ! Je suis votre assistant TunBank. Comment puis-je vous aider ?",
     "Sorry, I'm having trouble connecting right now.": "Désolé, j'ai des difficultés à me connecter pour l'instant.",
 
+    // Analytics
+    "Analytics": "Analyses",
+    "Smart Spending Analyzer": "Analyseur de Dépenses Intelligent",
+    "Understand where your money goes each month": "Comprenez où va votre argent chaque mois",
+    "Total Spent": "Total Dépensé",
+    "Total Received": "Total Reçu",
+    "Top Category": "Catégorie Principale",
+    "No spending data yet": "Pas encore de données de dépenses",
+    "Make some transactions and come back here to see your analysis": "Effectuez des transactions et revenez voir votre analyse.",
+    "Spending Distribution": "Répartition des Dépenses",
+    "Category Breakdown": "Détail par Catégorie",
+    "Spending by Category": "Dépenses par Catégorie",
+
     "Success": "Succès",
     "Error": "Erreur",
     "Erreur": "Erreur",
@@ -457,6 +483,19 @@ const translations = {
     "Hello! I'm your TunBank assistant. How can I help you today?": "مرحبًا! أنا مساعد TunBank. كيف يمكنني مساعدتك اليوم؟",
     "Sorry, I'm having trouble connecting right now.": "عذرًا، أواجه صعوبة في الاتصال الآن.",
 
+    // Analytics
+    "Analytics": "التحليلات",
+    "Smart Spending Analyzer": "محلل الإنفاق الذكي",
+    "Understand where your money goes each month": "افهم أين تذهب أموالك كل شهر",
+    "Total Spent": "إجمالي الإنفاق",
+    "Total Received": "إجمالي المستلم",
+    "Top Category": "الفئة الأكثر إنفاقاً",
+    "No spending data yet": "لا توجد بيانات إنفاق بعد",
+    "Make some transactions and come back here to see your analysis": "أجرِ بعض المعاملات ثم عد لرؤية تحليلك.",
+    "Spending Distribution": "توزيع الإنفاق",
+    "Category Breakdown": "تفصيل حسب الفئة",
+    "Spending by Category": "الإنفاق حسب الفئة",
+
     "Success": "نجاح",
     "Error": "خطأ",
     "Erreur": "خطأ",
@@ -606,6 +645,19 @@ const translations = {
     "Type your message...": "اكتب سؤالك...",
     "Hello! I'm your TunBank assistant. How can I help you today?": "أهلا! أنا مساعد TunBank. بش نعاونك بيش؟",
     "Sorry, I'm having trouble connecting right now.": "آسف، عندي مشكلة في الاتصال.",
+
+    // Analytics
+    "Analytics": "تحليل الإنفاق",
+    "Smart Spending Analyzer": "محلل الفلوس الذكي",
+    "Understand where your money goes each month": "فهم وين تمشي فلوسك كل شهر",
+    "Total Spent": "جملة ما صرفت",
+    "Total Received": "جملة ما جاك",
+    "Top Category": "أكثر حاجة صرفت فيها",
+    "No spending data yet": "ما عندكش بيانات بعد",
+    "Make some transactions and come back here to see your analysis": "دير معاملات وارجع تشوف تحليل إنفاقك.",
+    "Spending Distribution": "توزيع الإنفاق",
+    "Category Breakdown": "تفصيل حسب النوع",
+    "Spending by Category": "الإنفاق حسب النوع",
 
     "Success": "نجح",
     "Error": "خطأ",

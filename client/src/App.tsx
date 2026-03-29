@@ -12,6 +12,7 @@ import Cards from "@/pages/cards";
 import Loans from "@/pages/loans";
 import Services from "@/pages/services";
 import ChatAssistant from "@/pages/chat-assistant";
+import Analytics from "@/pages/analytics";
 import { useUser } from "@/hooks/use-auth";
 import { Loader2 } from "lucide-react";
 
@@ -57,6 +58,9 @@ function Router() {
       </Route>
       <Route path="/assistant">
         <ProtectedRoute component={ChatAssistant} />
+      </Route>
+      <Route path="/analytics">
+        <ProtectedRoute component={Analytics} />
       </Route>
       <Route path="/settings">
         {/* Placeholder for settings */}
