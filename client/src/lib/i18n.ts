@@ -156,6 +156,22 @@ const translations = {
     "Hello! I'm your TunBank assistant. How can I help you today?": "Hello! I'm your TunBank assistant. How can I help you today?",
     "Sorry, I'm having trouble connecting right now.": "Sorry, I'm having trouble connecting right now.",
 
+    // Rewards
+    "Rewards": "Rewards",
+    "Earn points for every action you take": "Earn points for every action you take",
+    "Your Balance": "Your Balance",
+    "pts": "pts",
+    "Member": "Member",
+    "pts to": "pts to",
+    "Max tier reached!": "Max tier reached!",
+    "Membership Tiers": "Membership Tiers",
+    "Current": "Current",
+    "Achieved": "Achieved",
+    "How to Earn Points": "How to Earn Points",
+    "Recent Activity": "Recent Activity",
+    "No reward activity yet": "No reward activity yet",
+    "Make a transfer or pay a bill to start earning": "Make a transfer or pay a bill to start earning",
+
     // Analytics
     "Analytics": "Analytics",
     "Smart Spending Analyzer": "Smart Spending Analyzer",
@@ -320,6 +336,22 @@ const translations = {
     "Hello! I'm your TunBank assistant. How can I help you today?": "Bonjour ! Je suis votre assistant TunBank. Comment puis-je vous aider ?",
     "Sorry, I'm having trouble connecting right now.": "Désolé, j'ai des difficultés à me connecter pour l'instant.",
 
+    // Rewards
+    "Rewards": "Récompenses",
+    "Earn points for every action you take": "Gagnez des points pour chaque action",
+    "Your Balance": "Votre solde",
+    "pts": "pts",
+    "Member": "Membre",
+    "pts to": "pts vers",
+    "Max tier reached!": "Niveau maximum atteint !",
+    "Membership Tiers": "Niveaux de fidélité",
+    "Current": "Actuel",
+    "Achieved": "Atteint",
+    "How to Earn Points": "Comment gagner des points",
+    "Recent Activity": "Activité récente",
+    "No reward activity yet": "Aucune activité de récompense",
+    "Make a transfer or pay a bill to start earning": "Faites un virement ou payez une facture pour commencer",
+
     // Analytics
     "Analytics": "Analyses",
     "Smart Spending Analyzer": "Analyseur de Dépenses Intelligent",
@@ -483,6 +515,22 @@ const translations = {
     "Hello! I'm your TunBank assistant. How can I help you today?": "مرحبًا! أنا مساعد TunBank. كيف يمكنني مساعدتك اليوم؟",
     "Sorry, I'm having trouble connecting right now.": "عذرًا، أواجه صعوبة في الاتصال الآن.",
 
+    // Rewards
+    "Rewards": "المكافآت",
+    "Earn points for every action you take": "اكسب نقاطاً على كل عملية تقوم بها",
+    "Your Balance": "رصيد النقاط",
+    "pts": "نقطة",
+    "Member": "عضو",
+    "pts to": "نقطة نحو",
+    "Max tier reached!": "وصلت للمستوى الأعلى!",
+    "Membership Tiers": "مستويات العضوية",
+    "Current": "الحالي",
+    "Achieved": "محقق",
+    "How to Earn Points": "كيفية كسب النقاط",
+    "Recent Activity": "النشاط الأخير",
+    "No reward activity yet": "لا يوجد نشاط بعد",
+    "Make a transfer or pay a bill to start earning": "أجرِ تحويلاً أو ادفع فاتورة لتبدأ",
+
     // Analytics
     "Analytics": "التحليلات",
     "Smart Spending Analyzer": "محلل الإنفاق الذكي",
@@ -645,6 +693,22 @@ const translations = {
     "Type your message...": "اكتب سؤالك...",
     "Hello! I'm your TunBank assistant. How can I help you today?": "أهلا! أنا مساعد TunBank. بش نعاونك بيش؟",
     "Sorry, I'm having trouble connecting right now.": "آسف، عندي مشكلة في الاتصال.",
+
+    // Rewards
+    "Rewards": "المكافآت",
+    "Earn points for every action you take": "اكسب نقاط على كل حاجة تديرها",
+    "Your Balance": "رصيد النقاط",
+    "pts": "نقطة",
+    "Member": "عضو",
+    "pts to": "نقطة باش توصل",
+    "Max tier reached!": "وصلت لأعلى مستوى!",
+    "Membership Tiers": "مستويات العضوية",
+    "Current": "الحالي",
+    "Achieved": "وصلتلو",
+    "How to Earn Points": "كيفاش تكسب نقاط",
+    "Recent Activity": "آخر نشاط",
+    "No reward activity yet": "ما عندكش نشاط بعد",
+    "Make a transfer or pay a bill to start earning": "حوّل فلوس ولا ادفع فاتورة باش تبدأ",
 
     // Analytics
     "Analytics": "تحليل الإنفاق",

@@ -1,12 +1,13 @@
 import { db } from "./db";
 import {
-  users, accounts, transactions, cards, loans, bills,
+  users, accounts, transactions, cards, loans, bills, rewards, rewardEvents,
   type User, type InsertUser,
   type Account, type InsertAccount,
   type Transaction, type InsertTransaction,
   type Card, type InsertCard,
   type Loan, type InsertLoan,
-  type Bill, type InsertBill
+  type Bill, type InsertBill,
+  type Reward, type RewardEvent
 } from "@shared/schema";
 import { eq, or, desc } from "drizzle-orm";
 
@@ -42,7 +43,12 @@ export interface IStorage {
   getLoan(id: number): Promise<Loan | undefined>;
   updateLoanBalance(id: number, remainingBalance: string): Promise<Loan>;
   createLoan(loan: InsertLoan): Promise<Loan>;
-  
+
+  // Rewards
+  getRewards(userId: number): Promise<Reward | null>;
+  addRewardPoints(userId: number, points: number, action: string, description: string): Promise<Reward>;
+  getRewardEvents(userId: number): Promise<RewardEvent[]>;
+
   sessionStore: session.Store;
 }
 
@@ -162,6 +168,45 @@ export class DatabaseStorage implements IStorage {
   async createLoan(loan: InsertLoan): Promise<Loan> {
     const [newLoan] = await db.insert(loans).values(loan).returning();
     return newLoan;
+  }
+
+  // ─── Rewards ─────────────────────────────────────────────────────────────────
+  async getRewards(userId: number): Promise<Reward | null> {
+    const [row] = await db.select().from(rewards).where(eq(rewards.userId, userId));
+    return row || null;
+  }
+
+  async addRewardPoints(userId: number, points: number, action: string, description: string): Promise<Reward> {
+    // Insert event
+    await db.insert(rewardEvents).values({ userId, points, action, description });
+
+    // Upsert rewards row
+    const existing = await this.getRewards(userId);
+    const newTotal = (existing?.totalPoints ?? 0) + points;
+    const newTier = newTotal >= 5000 ? "platinum" : newTotal >= 2000 ? "gold" : newTotal >= 500 ? "silver" : "bronze";
+
+    if (existing) {
+      const [updated] = await db
+        .update(rewards)
+        .set({ totalPoints: newTotal, tier: newTier, updatedAt: new Date() })
+        .where(eq(rewards.userId, userId))
+        .returning();
+      return updated;
+    } else {
+      const [created] = await db
+        .insert(rewards)
+        .values({ userId, totalPoints: newTotal, tier: newTier })
+        .returning();
+      return created;
+    }
+  }
+
+  async getRewardEvents(userId: number): Promise<RewardEvent[]> {
+    return await db
+      .select()
+      .from(rewardEvents)
+      .where(eq(rewardEvents.userId, userId))
+      .orderBy(desc(rewardEvents.createdAt));
   }
 }
 

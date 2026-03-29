@@ -102,7 +102,28 @@ export type InsertLoan = z.infer<typeof insertLoanSchema>;
 
 export * from "./models/chat";
 
-// Relations
+// ─── Rewards ─────────────────────────────────────────────────────────────────
+export const rewards = pgTable("rewards", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  totalPoints: integer("total_points").default(0).notNull(),
+  tier: text("tier").default("bronze").notNull(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const rewardEvents = pgTable("reward_events", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  points: integer("points").notNull(),
+  action: text("action").notNull(),
+  description: text("description").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type Reward = typeof rewards.$inferSelect;
+export type RewardEvent = typeof rewardEvents.$inferSelect;
+
+// ─── Relations
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
   loans: many(loans),

@@ -9,11 +9,20 @@ import Decimal from "decimal.js";
 import { registerChatRoutes } from "./replit_integrations/chat";
 import { registerImageRoutes } from "./replit_integrations/image";
 
+// ─── Reward point values per action ──────────────────────────────────────────
+const REWARD_POINTS = {
+  recharge:           20,
+  bill_payment:       50,
+  local_transfer:     10,
+  intl_transfer:      30,
+  loan_repayment:    100,
+  account_creation:   25,
+};
+
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
-  // Setup Auth (Passport)
   setupAuth(app);
   registerChatRoutes(app);
   registerImageRoutes(app);
@@ -35,10 +44,8 @@ export async function registerRoutes(
         return res.status(400).json({ message: "Insufficient funds" });
       }
 
-      // Update balance
       await storage.updateAccountBalance(account.id, balance.minus(rechargeAmount).toString());
 
-      // Create bill record
       await storage.createBill({
         userId: req.user.id,
         accountId: account.id,
@@ -49,7 +56,6 @@ export async function registerRoutes(
         status: "completed"
       });
 
-      // Create transaction
       await storage.createTransaction({
         fromAccountId: account.id,
         toAccountId: null,
@@ -58,6 +64,14 @@ export async function registerRoutes(
         status: "completed",
         description: `Mobile Recharge - ${provider} (${phoneNumber})`
       });
+
+      // 🎁 Award reward points
+      await storage.addRewardPoints(
+        req.user.id,
+        REWARD_POINTS.recharge,
+        "recharge",
+        `Recharge ${provider} — +${REWARD_POINTS.recharge} pts`
+      );
 
       res.json({ success: true });
     } catch (err) {
@@ -81,6 +95,15 @@ export async function registerRoutes(
       const input = insertAccountSchema.parse(req.body);
       const accountNumber = "AC" + Math.floor(Math.random() * 1000000000).toString();
       const account = await storage.createAccount({ ...input, userId: req.user.id, accountNumber });
+
+      // 🎁 Award reward points for opening a new account
+      await storage.addRewardPoints(
+        req.user.id,
+        REWARD_POINTS.account_creation,
+        "account_creation",
+        `New account opened — +${REWARD_POINTS.account_creation} pts`
+      );
+
       res.status(201).json(account);
     } catch (err) {
       if (err instanceof z.ZodError) {
@@ -105,7 +128,6 @@ export async function registerRoutes(
     res.json(transactions);
   });
 
-  // Exchange rates (TND base)
   const EXCHANGE_RATES: Record<string, Record<string, number>> = {
     TND: { TND: 1, USD: 0.34, EUR: 0.31, GBP: 0.27 },
     USD: { TND: 2.94, USD: 1, EUR: 0.91, GBP: 0.79 },
@@ -117,15 +139,12 @@ export async function registerRoutes(
     if (!req.isAuthenticated()) return res.sendStatus(401);
     try {
       const input = api.transactions.create.input.parse(req.body);
-      
-      // Extract international transfer extra fields
       const { toCurrency, recipientCardNumber, recipientName } = req.body as {
         toCurrency?: string;
         recipientCardNumber?: string;
         recipientName?: string;
       };
 
-      // Basic transaction logic (Transfer)
       if (input.fromAccountId) {
         const fromAccount = await storage.getAccount(input.fromAccountId);
         if (!fromAccount) return res.status(404).json({ message: "Account not found" });
@@ -140,7 +159,6 @@ export async function registerRoutes(
 
         await storage.updateAccountBalance(fromAccount.id, balance.minus(amount).toString());
 
-        // Local transfer: also credit the destination account
         if (input.toAccountId && !toCurrency) {
           const toAccount = await storage.getAccount(input.toAccountId);
           if (toAccount) {
@@ -149,7 +167,6 @@ export async function registerRoutes(
         }
       }
 
-      // Get from account currency for international transfers
       let fromCurrency = "TND";
       if (input.fromAccountId) {
         const fromAcc = await storage.getAccount(input.fromAccountId);
@@ -158,13 +175,14 @@ export async function registerRoutes(
 
       let txExchangeRate: string | undefined;
       let txConvertedAmount: string | undefined;
-      if (toCurrency && toCurrency !== fromCurrency) {
-        const rate = EXCHANGE_RATES[fromCurrency]?.[toCurrency] || 1;
+      const isIntl = !!(toCurrency && toCurrency !== fromCurrency);
+      if (isIntl) {
+        const rate = EXCHANGE_RATES[fromCurrency]?.[toCurrency!] || 1;
         const amt = new Decimal(input.amount.toString());
         txExchangeRate = rate.toString();
         txConvertedAmount = amt.mul(rate).toFixed(2);
       }
-      
+
       const transaction = await storage.createTransaction({
         ...input,
         status: "completed",
@@ -175,6 +193,20 @@ export async function registerRoutes(
         recipientCardNumber: recipientCardNumber || null,
         recipientName: recipientName || null,
       });
+
+      // 🎁 Award reward points
+      if (isIntl) {
+        await storage.addRewardPoints(
+          req.user.id, REWARD_POINTS.intl_transfer, "intl_transfer",
+          `International transfer to ${toCurrency} — +${REWARD_POINTS.intl_transfer} pts`
+        );
+      } else if (input.fromAccountId) {
+        await storage.addRewardPoints(
+          req.user.id, REWARD_POINTS.local_transfer, "local_transfer",
+          `Local transfer — +${REWARD_POINTS.local_transfer} pts`
+        );
+      }
+
       res.status(201).json(transaction);
     } catch (err) {
       if (err instanceof z.ZodError) {
@@ -203,7 +235,7 @@ export async function registerRoutes(
     try {
       const loanId = Number(req.params.id);
       const { amount, accountId } = api.loans.repay.input.parse(req.body);
-      
+
       const loan = await storage.getLoan(loanId);
       const account = await storage.getAccount(accountId);
 
@@ -218,14 +250,12 @@ export async function registerRoutes(
         return res.status(400).json({ message: "Insufficient funds in selected account" });
       }
 
-      // Update balances
       const newAccountBalance = accountBalance.minus(repaymentAmount).toString();
       const newLoanBalance = Decimal.max(0, remainingLoanBalance.minus(repaymentAmount)).toString();
 
       await storage.updateAccountBalance(account.id, newAccountBalance);
       await storage.updateLoanBalance(loan.id, newLoanBalance);
 
-      // Create transaction record
       await storage.createTransaction({
         fromAccountId: account.id,
         toAccountId: null,
@@ -235,6 +265,14 @@ export async function registerRoutes(
         description: `Loan Repayment - Loan ID: ${loanId}`
       });
 
+      // 🎁 Award reward points for loan repayment
+      await storage.addRewardPoints(
+        req.user.id,
+        REWARD_POINTS.loan_repayment,
+        "loan_repayment",
+        `Loan installment paid — +${REWARD_POINTS.loan_repayment} pts`
+      );
+
       res.json({ success: true, newBalance: newLoanBalance });
     } catch (err) {
       if (err instanceof z.ZodError) {
@@ -242,6 +280,19 @@ export async function registerRoutes(
       }
       throw err;
     }
+  });
+
+  // === REWARDS ===
+  app.get("/api/rewards", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    const reward = await storage.getRewards(req.user.id);
+    res.json(reward || { totalPoints: 0, tier: "bronze" });
+  });
+
+  app.get("/api/rewards/events", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    const events = await storage.getRewardEvents(req.user.id);
+    res.json(events);
   });
 
   return httpServer;
