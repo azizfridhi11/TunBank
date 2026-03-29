@@ -1,15 +1,17 @@
 import { db } from "./db";
 import {
-  users, accounts, transactions, cards, loans, bills, rewards, rewardEvents,
+  users, accounts, transactions, cards, loans, bills, rewards, rewardEvents, savingsGoals,
   type User, type InsertUser,
   type Account, type InsertAccount,
   type Transaction, type InsertTransaction,
   type Card, type InsertCard,
   type Loan, type InsertLoan,
   type Bill, type InsertBill,
-  type Reward, type RewardEvent
+  type Reward, type RewardEvent,
+  type SavingsGoal, type InsertSavingsGoal
 } from "@shared/schema";
 import { eq, or, desc } from "drizzle-orm";
+import Decimal from "decimal.js";
 
 import session from "express-session";
 import createMemoryStore from "memorystore";
@@ -48,6 +50,13 @@ export interface IStorage {
   getRewards(userId: number): Promise<Reward | null>;
   addRewardPoints(userId: number, points: number, action: string, description: string): Promise<Reward>;
   getRewardEvents(userId: number): Promise<RewardEvent[]>;
+
+  // Savings Goals
+  getSavingsGoals(userId: number): Promise<SavingsGoal[]>;
+  getSavingsGoal(id: number): Promise<SavingsGoal | undefined>;
+  createSavingsGoal(goal: InsertSavingsGoal & { userId: number }): Promise<SavingsGoal>;
+  contributeSavingsGoal(id: number, amount: string): Promise<SavingsGoal>;
+  deleteSavingsGoal(id: number): Promise<void>;
 
   sessionStore: session.Store;
 }
@@ -207,6 +216,38 @@ export class DatabaseStorage implements IStorage {
       .from(rewardEvents)
       .where(eq(rewardEvents.userId, userId))
       .orderBy(desc(rewardEvents.createdAt));
+  }
+
+  // ─── Savings Goals ────────────────────────────────────────────────────────────
+  async getSavingsGoals(userId: number): Promise<SavingsGoal[]> {
+    return await db.select().from(savingsGoals).where(eq(savingsGoals.userId, userId)).orderBy(desc(savingsGoals.createdAt));
+  }
+
+  async getSavingsGoal(id: number): Promise<SavingsGoal | undefined> {
+    const [goal] = await db.select().from(savingsGoals).where(eq(savingsGoals.id, id));
+    return goal;
+  }
+
+  async createSavingsGoal(goal: InsertSavingsGoal & { userId: number }): Promise<SavingsGoal> {
+    const [created] = await db.insert(savingsGoals).values(goal).returning();
+    return created;
+  }
+
+  async contributeSavingsGoal(id: number, amount: string): Promise<SavingsGoal> {
+    const goal = await this.getSavingsGoal(id);
+    if (!goal) throw new Error("Goal not found");
+    const newAmount = new Decimal(goal.currentAmount).plus(amount);
+    const isCompleted = newAmount.gte(new Decimal(goal.targetAmount));
+    const [updated] = await db
+      .update(savingsGoals)
+      .set({ currentAmount: newAmount.toString(), status: isCompleted ? "completed" : "active" })
+      .where(eq(savingsGoals.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteSavingsGoal(id: number): Promise<void> {
+    await db.delete(savingsGoals).where(eq(savingsGoals.id, id));
   }
 }
 

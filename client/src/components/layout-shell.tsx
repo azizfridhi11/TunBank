@@ -101,6 +101,7 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
     { href: "/loans",      labelKey: "Loans",      icon: Wallet },
     { href: "/analytics",  labelKey: "Analytics",  icon: PieChart },
     { href: "/rewards",    labelKey: "Rewards",    icon: Gift },
+    { href: "/savings",    labelKey: "Savings Goals", icon: Target },
     { href: "/assistant",  labelKey: "Assistant",  icon: MessageSquare },
   ];
 

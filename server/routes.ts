@@ -282,6 +282,83 @@ export async function registerRoutes(
     }
   });
 
+  // === SAVINGS GOALS ===
+  app.get("/api/savings-goals", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    const goals = await storage.getSavingsGoals(req.user.id);
+    res.json(goals);
+  });
+
+  app.post("/api/savings-goals", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    try {
+      const { title, emoji, color, targetAmount, targetDate } = req.body;
+      if (!title || !targetAmount) return res.status(400).json({ message: "Title and target amount are required" });
+      const goal = await storage.createSavingsGoal({
+        userId: req.user.id,
+        title,
+        emoji: emoji || "🎯",
+        color: color || "#6366f1",
+        targetAmount: String(targetAmount),
+        targetDate: targetDate ? new Date(targetDate) : null,
+      });
+      res.status(201).json(goal);
+    } catch (err) {
+      res.status(500).json({ message: "Failed to create goal" });
+    }
+  });
+
+  app.post("/api/savings-goals/:id/contribute", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    try {
+      const goalId = Number(req.params.id);
+      const { accountId, amount } = req.body;
+
+      const goal = await storage.getSavingsGoal(goalId);
+      if (!goal || goal.userId !== req.user.id) return res.status(404).json({ message: "Goal not found" });
+
+      const account = await storage.getAccount(accountId);
+      if (!account || account.userId !== req.user.id) return res.status(404).json({ message: "Account not found" });
+
+      const balance = new Decimal(account.balance);
+      const contribution = new Decimal(String(amount));
+
+      if (balance.lessThan(contribution)) return res.status(400).json({ message: "Insufficient funds" });
+
+      // Deduct from account
+      await storage.updateAccountBalance(account.id, balance.minus(contribution).toString());
+
+      // Add to goal
+      const updatedGoal = await storage.contributeSavingsGoal(goalId, contribution.toString());
+
+      // Record transaction
+      await storage.createTransaction({
+        fromAccountId: account.id,
+        toAccountId: null,
+        amount: contribution.toString(),
+        type: "payment",
+        status: "completed",
+        description: `Savings Goal — ${goal.title}`,
+      });
+
+      // 🎁 Award points for saving
+      await storage.addRewardPoints(req.user.id, 15, "savings", `Saved toward "${goal.title}" — +15 pts`);
+
+      res.json(updatedGoal);
+    } catch (err) {
+      res.status(500).json({ message: "Failed to contribute" });
+    }
+  });
+
+  app.delete("/api/savings-goals/:id", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    const goalId = Number(req.params.id);
+    const goal = await storage.getSavingsGoal(goalId);
+    if (!goal || goal.userId !== req.user.id) return res.status(404).json({ message: "Goal not found" });
+    await storage.deleteSavingsGoal(goalId);
+    res.json({ success: true });
+  });
+
   // === REWARDS ===
   app.get("/api/rewards", async (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);

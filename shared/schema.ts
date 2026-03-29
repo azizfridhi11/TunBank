@@ -123,6 +123,24 @@ export const rewardEvents = pgTable("reward_events", {
 export type Reward = typeof rewards.$inferSelect;
 export type RewardEvent = typeof rewardEvents.$inferSelect;
 
+// ─── Savings Goals ─────────────────────────────────────────────────────────────
+export const savingsGoals = pgTable("savings_goals", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  title: text("title").notNull(),
+  emoji: text("emoji").default("🎯").notNull(),
+  targetAmount: decimal("target_amount", { precision: 15, scale: 2 }).notNull(),
+  currentAmount: decimal("current_amount", { precision: 15, scale: 2 }).default("0.00").notNull(),
+  targetDate: timestamp("target_date"),
+  status: text("status").default("active").notNull(), // active, completed, cancelled
+  color: text("color").default("#6366f1").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertSavingsGoalSchema = createInsertSchema(savingsGoals).omit({ id: true, currentAmount: true, status: true, createdAt: true });
+export type SavingsGoal = typeof savingsGoals.$inferSelect;
+export type InsertSavingsGoal = z.infer<typeof insertSavingsGoalSchema>;
+
 // ─── Relations
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
