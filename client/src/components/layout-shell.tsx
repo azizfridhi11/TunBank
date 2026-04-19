@@ -36,13 +36,80 @@ const THEME_COLORS = [
 function applyAccentColor(color: typeof THEME_COLORS[0]) {
   const r = document.documentElement;
   const isDark = r.classList.contains("dark");
-  const primary = `${color.h} ${color.s}% ${color.l}%`;
-  const fg = isDark ? color.fgDark : color.fgLight;
-  r.style.setProperty("--primary", primary);
-  r.style.setProperty("--primary-foreground", fg);
-  r.style.setProperty("--ring", primary);
-  r.style.setProperty("--sidebar-primary", primary);
+  const { h, s, l } = color;
+
+  const primary      = `${h} ${s}% ${l}%`;
+  const fg           = isDark ? color.fgDark : color.fgLight;
+
+  // Very subtle tinted backgrounds (almost white / almost black)
+  const accentLight  = `${h} ${Math.round(s * 0.22)}% 94%`;
+  const accentDark   = `${h} ${Math.round(s * 0.18)}% 16%`;
+  const accent       = isDark ? accentDark : accentLight;
+
+  // Slightly stronger tint for accent foreground (readable colored text)
+  const accentFgL    = `${h} ${Math.round(s * 0.75)}% ${Math.max(l - 32, 18)}%`;
+  const accentFgD    = `${h} ${Math.round(s * 0.6)}%  ${Math.min(l + 22, 93)}%`;
+  const accentFg     = isDark ? accentFgD : accentFgL;
+
+  // Sidebar background — gentle wash of the accent color
+  const sidebarBgL   = `${h} ${Math.round(s * 0.12)}% 97%`;
+  const sidebarBgD   = `${h} ${Math.round(s * 0.12)}% 7%`;
+  const sidebarBg    = isDark ? sidebarBgD : sidebarBgL;
+
+  // Tinted borders
+  const borderL      = `${h} ${Math.round(s * 0.18)}% 87%`;
+  const borderD      = `${h} ${Math.round(s * 0.14)}% 19%`;
+  const border       = isDark ? borderD : borderL;
+
+  // Tinted card background (very subtle)
+  const cardL        = `${h} ${Math.round(s * 0.06)}% 100%`;
+  const cardD        = `${h} ${Math.round(s * 0.06)}% 5%`;
+  const card         = isDark ? cardD : cardL;
+
+  // Chart colors — the chosen hue with harmonic shifts
+  const c1 = `${h} ${s}% ${l}%`;
+  const c2 = `${(h + 25) % 360} ${Math.round(s * 0.85)}% ${Math.min(l + 10, 80)}%`;
+  const c3 = `${(h + 55) % 360} ${Math.round(s * 0.70)}% ${Math.max(l - 8, 30)}%`;
+  const c4 = `${(h + 130) % 360} ${Math.round(s * 0.65)}% ${Math.min(l + 5, 75)}%`;
+  const c5 = `${(h + 190) % 360} ${Math.round(s * 0.55)}% ${Math.max(l - 5, 35)}%`;
+
+  // ── Apply all variables ────────────────────────────────────────────
+  // Primary action color
+  r.style.setProperty("--primary",                  primary);
+  r.style.setProperty("--primary-foreground",       fg);
+  r.style.setProperty("--ring",                     primary);
+
+  // Accent (hover / selected tint)
+  r.style.setProperty("--accent",                   accent);
+  r.style.setProperty("--accent-foreground",        accentFg);
+
+  // Card & popover wash
+  r.style.setProperty("--card",                     card);
+  r.style.setProperty("--card-foreground",          isDark ? "0 0% 98%" : "0 0% 4%");
+  r.style.setProperty("--popover",                  card);
+  r.style.setProperty("--popover-foreground",       isDark ? "0 0% 98%" : "0 0% 4%");
+
+  // Border & input
+  r.style.setProperty("--border",                   border);
+  r.style.setProperty("--input",                    border);
+
+  // Sidebar — tinted background + primary brand color
+  r.style.setProperty("--sidebar",                  sidebarBg);
+  r.style.setProperty("--sidebar-foreground",       isDark ? "0 0% 92%" : "0 0% 20%");
+  r.style.setProperty("--sidebar-primary",          primary);
   r.style.setProperty("--sidebar-primary-foreground", fg);
+  r.style.setProperty("--sidebar-accent",           accent);
+  r.style.setProperty("--sidebar-accent-foreground", accentFg);
+  r.style.setProperty("--sidebar-border",           border);
+  r.style.setProperty("--sidebar-ring",             primary);
+
+  // Chart colors — full palette derived from the chosen hue
+  r.style.setProperty("--chart-1", c1);
+  r.style.setProperty("--chart-2", c2);
+  r.style.setProperty("--chart-3", c3);
+  r.style.setProperty("--chart-4", c4);
+  r.style.setProperty("--chart-5", c5);
+
   localStorage.setItem("tunbank_accent", color.name);
 }
 
