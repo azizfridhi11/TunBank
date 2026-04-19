@@ -5,11 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { Bot, User, Send, RotateCcw, Sparkles, ArrowUp } from "lucide-react";
+import { User, RotateCcw, Sparkles, ArrowUp } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useTranslation } from "react-i18next";
 import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
+
+const TUNBOT_AVATAR = "https://api.dicebear.com/7.x/avataaars/svg?seed=TunBot&backgroundColor=b6e3f4&top=shortHair&hairColor=2c1b18&skinColor=ae5d29&accessories=prescription02&facialHair=beardMedium&facialHairColor=2c1b18";
 
 type Message = {
   role: "user" | "assistant";
@@ -119,11 +121,12 @@ function MessageBubble({ message }: { message: Message }) {
   const isUser = message.role === "user";
   return (
     <div className={cn("flex gap-3 max-w-full", isUser && "flex-row-reverse")}>
-      <div className={cn(
-        "flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center mt-0.5",
-        isUser ? "bg-primary text-primary-foreground" : "bg-gradient-to-br from-violet-500 to-primary text-white"
-      )}>
-        {isUser ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
+      <div className="flex-shrink-0 w-8 h-8 rounded-full overflow-hidden mt-0.5 flex items-center justify-center"
+        style={isUser ? {} : {}}>
+        {isUser
+          ? <div className="w-full h-full bg-primary flex items-center justify-center"><User className="w-4 h-4 text-primary-foreground" /></div>
+          : <img src={TUNBOT_AVATAR} alt="TunBot" className="w-full h-full object-cover bg-blue-100" />
+        }
       </div>
 
       <div className={cn(
@@ -272,8 +275,8 @@ export default function ChatAssistant() {
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-primary flex items-center justify-center shadow-lg">
-              <Sparkles className="w-5 h-5 text-white" />
+            <div className="w-12 h-12 rounded-xl overflow-hidden shadow-lg border-2 border-primary/20 bg-blue-100">
+              <img src={TUNBOT_AVATAR} alt="TunBot" className="w-full h-full object-cover" />
             </div>
             <div>
               <h1 className="text-2xl font-display font-bold text-foreground flex items-center gap-2">
@@ -299,8 +302,8 @@ export default function ChatAssistant() {
 
               {isLoading && (
                 <div className="flex gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-primary flex items-center justify-center">
-                    <Bot className="w-4 h-4 text-white" />
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full overflow-hidden bg-blue-100">
+                    <img src={TUNBOT_AVATAR} alt="TunBot" className="w-full h-full object-cover" />
                   </div>
                   <div className="bg-card border border-border rounded-2xl rounded-tl-none px-4 py-3 shadow-sm">
                     <TypingDots />
