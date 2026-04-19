@@ -56,24 +56,38 @@ function ProductCard({ product, cartItems, onAdd }: {
   return (
     <div className="group bg-card rounded-2xl border border-border overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col">
       {/* Image area */}
-      <div className={`relative h-40 flex items-center justify-center bg-gradient-to-br ${product.emojiGradient} flex-shrink-0`}>
-        <span className="text-6xl drop-shadow-lg">{product.emoji}</span>
+      <div className={`relative h-44 flex-shrink-0 overflow-hidden bg-gradient-to-br ${product.emojiGradient}`}>
+        <img
+          src={product.image}
+          alt={product.name}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          onError={(e) => {
+            const t = e.currentTarget;
+            t.style.display = "none";
+            const fb = t.nextElementSibling as HTMLElement;
+            if (fb) fb.style.display = "flex";
+          }}
+        />
+        {/* Emoji fallback (hidden by default, shown on img error) */}
+        <div className="absolute inset-0 hidden items-center justify-center text-6xl">
+          {product.emoji}
+        </div>
         {/* Store badge */}
         <div
-          className="absolute top-2 left-2 flex items-center gap-1 px-2 py-0.5 rounded-full text-white text-xs font-bold"
-          style={{ backgroundColor: store.color }}
+          className="absolute top-2 left-2 flex items-center gap-1 px-2 py-0.5 rounded-full text-white text-xs font-bold backdrop-blur-sm"
+          style={{ backgroundColor: `${store.color}dd` }}
         >
           {store.emoji} {store.name}
         </div>
         {/* Discount badge */}
         {discount > 0 && (
-          <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-black px-2 py-0.5 rounded-full">
+          <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-black px-2 py-0.5 rounded-full shadow">
             -{discount}%
           </div>
         )}
         {/* Custom badge */}
         {product.badge && !discount && (
-          <div className="absolute top-2 right-2 text-white text-xs font-bold px-2 py-0.5 rounded-full"
+          <div className="absolute top-2 right-2 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow"
             style={{ backgroundColor: store.color }}>
             {product.badge}
           </div>
