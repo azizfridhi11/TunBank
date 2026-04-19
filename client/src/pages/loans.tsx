@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { LayoutShell } from "@/components/layout-shell";
+import { sounds } from "@/lib/sounds";
 import { useUser } from "@/hooks/use-auth";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { api, buildUrl } from "@shared/routes";
@@ -112,6 +113,7 @@ function LoanCard({ loan, accounts }: { loan: Loan; accounts: Account[] }) {
       return res.json();
     },
     onSuccess: () => {
+      sounds.loan();
       toast({ title: t("Success"), description: t("Payment processed successfully") });
       queryClient.invalidateQueries({ queryKey: [api.loans.list.path] });
       queryClient.invalidateQueries({ queryKey: [api.accounts.list.path] });

@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, ShieldCheck, Lock, Landmark, User, Mail, Smartphone } from "lucide-react";
 import logoImg from "@assets/OIP_1771533296748.jpeg";
 import { useTranslation } from "react-i18next";
+import { sounds } from "@/lib/sounds";
 
 export default function AuthPage() {
   const [_, setLocation] = useLocation();
@@ -109,6 +110,7 @@ export default function AuthPage() {
               <LoginForm 
                 onSubmit={async (data) => {
                   await login(data);
+                  sounds.login();
                   setLocation("/dashboard");
                 }} 
                 isLoading={isLoginPending} 
@@ -119,6 +121,7 @@ export default function AuthPage() {
               <RegisterForm 
                 onSubmit={async (data) => {
                   await register(data);
+                  sounds.success();
                   setActiveTab("login");
                 }} 
                 isLoading={isRegisterPending} 

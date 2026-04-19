@@ -1,4 +1,5 @@
 import { LayoutShell } from "@/components/layout-shell";
+import { sounds } from "@/lib/sounds";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -153,6 +154,7 @@ function CreateGoalForm({ onSuccess }: { onSuccess: () => void }) {
       return res.json();
     },
     onSuccess: () => {
+      sounds.success();
       toast({ title: t("Goal created!"), description: t("Start saving towards your goal.") });
       queryClient.invalidateQueries({ queryKey: ["/api/savings-goals"] });
       onSuccess();
@@ -253,6 +255,7 @@ function ContributeDialog({ goal, open, onClose }: { goal: SavingsGoal | null; o
       return res.json();
     },
     onSuccess: () => {
+      sounds.save();
       toast({ title: t("Savings added!"), description: `+${amount} DT → ${goal?.title}` });
       queryClient.invalidateQueries({ queryKey: ["/api/savings-goals"] });
       queryClient.invalidateQueries({ queryKey: [api.accounts.list.path] });

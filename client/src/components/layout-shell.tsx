@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import logoImg from "@assets/OIP_1771533296748.jpeg";
+import { sounds } from "@/lib/sounds";
 
 // ─── Accent Color System ───────────────────────────────────────────────────────
 const THEME_COLORS = [
@@ -140,6 +141,7 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
   }, []);
 
   const toggleTheme = () => {
+    sounds.toggle();
     const newTheme = theme === "light" ? "dark" : "light";
     setTheme(newTheme);
     if (newTheme === "dark") {
@@ -153,6 +155,7 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
   };
 
   const handleAccent = (color: typeof THEME_COLORS[0]) => {
+    sounds.tick();
     applyAccentColor(color);
     setAccentName(color.name);
   };
@@ -194,7 +197,9 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
             const Icon = item.icon;
             return (
               <Link key={item.href} href={item.href}>
-                <div className={`
+                <div
+                  onClick={() => { if (!isActive) sounds.tick(); }}
+                  className={`
                   flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer
                   ${isActive 
                     ? "bg-sidebar-accent text-sidebar-accent-foreground" 
@@ -257,10 +262,10 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => i18n.changeLanguage('en')}>English</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => i18n.changeLanguage('fr')}>Français</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => i18n.changeLanguage('ar')}>العربية</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => i18n.changeLanguage('tn')}>🇹🇳 دارجة</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => { sounds.tick(); i18n.changeLanguage('en'); }}>English</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => { sounds.tick(); i18n.changeLanguage('fr'); }}>Français</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => { sounds.tick(); i18n.changeLanguage('ar'); }}>العربية</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => { sounds.tick(); i18n.changeLanguage('tn'); }}>🇹🇳 دارجة</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -280,7 +285,7 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
           <Button 
             variant="outline" 
             className="w-full justify-start gap-2 text-muted-foreground hover:text-destructive hover:bg-destructive/5 hover:border-destructive/20"
-            onClick={() => logout()}
+            onClick={() => { sounds.click(); logout(); }}
           >
             <LogOut className="w-4 h-4" />
             {t("Sign Out")}

@@ -1,4 +1,5 @@
 import { LayoutShell } from "@/components/layout-shell";
+import { sounds } from "@/lib/sounds";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
@@ -152,7 +153,7 @@ function CartSheet({ cartItems, onCheckout }: {
       if (!res.ok) throw new Error("Failed");
       return res.json();
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["/api/shop/cart"] }),
+    onSuccess: () => { sounds.tick(); queryClient.invalidateQueries({ queryKey: ["/api/shop/cart"] }); },
   });
 
   const removeMutation = useMutation({
@@ -160,7 +161,7 @@ function CartSheet({ cartItems, onCheckout }: {
       const res = await fetch(`/api/shop/cart/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed");
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["/api/shop/cart"] }),
+    onSuccess: () => { sounds.unpop(); queryClient.invalidateQueries({ queryKey: ["/api/shop/cart"] }); },
   });
 
   const enriched = cartItems.map(c => ({ ...c, product: getProductById(c.productId) })).filter(c => c.product);
@@ -267,6 +268,7 @@ function CheckoutDialog({ open, onClose, cartItems, onSuccess }: {
       return res.json();
     },
     onSuccess: (data) => {
+      sounds.checkout();
       queryClient.invalidateQueries({ queryKey: ["/api/shop/cart"] });
       queryClient.invalidateQueries({ queryKey: [api.accounts.list.path] });
       queryClient.invalidateQueries({ queryKey: [api.transactions.list.path] });
@@ -438,6 +440,7 @@ export default function Shop() {
       return res.json();
     },
     onSuccess: (_, productId) => {
+      sounds.pop();
       const product = getProductById(productId);
       toast({ title: `${product?.emoji} ${t("Added to cart")}`, description: product?.name });
       queryClient.invalidateQueries({ queryKey: ["/api/shop/cart"] });

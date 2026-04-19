@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { LayoutShell } from "@/components/layout-shell";
+import { sounds } from "@/lib/sounds";
 import { useTransactions, useCreateTransaction, useAccounts } from "@/hooks/use-finance";
 import { TransactionList } from "@/components/transaction-list";
 import { Button } from "@/components/ui/button";
@@ -106,6 +107,7 @@ function LocalTransferForm({ accounts }: { accounts: any[] }) {
       status: "completed",
     }, {
       onSuccess: () => {
+        sounds.coin();
         toast({ title: t("Success"), description: t("Transfer completed successfully") });
         form.reset();
       },

@@ -1,4 +1,5 @@
 import { LayoutShell } from "@/components/layout-shell";
+import { sounds } from "@/lib/sounds";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Phone, Receipt, Send, Download, GraduationCap, Landmark, Scale, ShoppingBag, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -68,6 +69,7 @@ export default function Services() {
       return res.json();
     },
     onSuccess: () => {
+      sounds.recharge();
       toast({ title: t("Success"), description: t("Recharge processed successfully") });
       queryClient.invalidateQueries({ queryKey: [api.accounts.list.path] });
       queryClient.invalidateQueries({ queryKey: [api.transactions.list.path] });
@@ -108,6 +110,7 @@ export default function Services() {
       return res.json();
     },
     onSuccess: () => {
+      sounds.bill();
       toast({ title: t("Succès"), description: t("Facture payée avec succès") });
       queryClient.invalidateQueries({ queryKey: [api.accounts.list.path] });
       queryClient.invalidateQueries({ queryKey: [api.transactions.list.path] });
