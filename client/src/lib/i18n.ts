@@ -755,7 +755,6 @@ const translations = {
     "Create first goal": "أنشئ هدفك الأول",
     "Completed Goals": "أهداف مكتملة",
     "From account": "من حساب",
-    "Select account": "اختار الحساب",
     "Amount to save (DT)": "المبلغ المراد ادخاره (دينار)",
     "Save": "ادخر",
     "Goal created!": "تم إنشاء الهدف!",

@@ -2,7 +2,7 @@ import { Link, useLocation } from "wouter";
 import { 
   LayoutDashboard, CreditCard, ArrowRightLeft, Settings, 
   LogOut, Wallet, Moon, Sun, Languages, MessageSquare, Palette,
-  PieChart, Gift
+  PieChart, Gift, Target
 } from "lucide-react";
 import { useUser, useLogout } from "@/hooks/use-auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
