@@ -1,6 +1,7 @@
 import { db } from "./db";
 import {
   users, accounts, transactions, cards, loans, bills, rewards, rewardEvents, savingsGoals,
+  cartItems, shopOrders, shopOrderItems,
   type User, type InsertUser,
   type Account, type InsertAccount,
   type Transaction, type InsertTransaction,
@@ -8,9 +9,10 @@ import {
   type Loan, type InsertLoan,
   type Bill, type InsertBill,
   type Reward, type RewardEvent,
-  type SavingsGoal, type InsertSavingsGoal
+  type SavingsGoal, type InsertSavingsGoal,
+  type CartItem, type ShopOrder, type ShopOrderItem,
 } from "@shared/schema";
-import { eq, or, desc } from "drizzle-orm";
+import { eq, or, desc, and } from "drizzle-orm";
 import Decimal from "decimal.js";
 
 import session from "express-session";
@@ -57,6 +59,17 @@ export interface IStorage {
   createSavingsGoal(goal: InsertSavingsGoal & { userId: number }): Promise<SavingsGoal>;
   contributeSavingsGoal(id: number, amount: string): Promise<SavingsGoal>;
   deleteSavingsGoal(id: number): Promise<void>;
+
+  // Shopping Hub
+  getCartItems(userId: number): Promise<CartItem[]>;
+  addToCart(userId: number, productId: string): Promise<CartItem>;
+  removeFromCart(id: number): Promise<void>;
+  updateCartQty(id: number, quantity: number): Promise<CartItem>;
+  clearCart(userId: number): Promise<void>;
+  createShopOrder(data: { userId: number; accountId: number; total: string }): Promise<ShopOrder>;
+  createShopOrderItems(items: Array<{ orderId: number; productId: string; productName: string; storeId: string; storeName: string; price: string; quantity: number }>): Promise<void>;
+  getShopOrders(userId: number): Promise<ShopOrder[]>;
+  getShopOrderItems(orderId: number): Promise<ShopOrderItem[]>;
 
   sessionStore: session.Store;
 }
@@ -248,6 +261,51 @@ export class DatabaseStorage implements IStorage {
 
   async deleteSavingsGoal(id: number): Promise<void> {
     await db.delete(savingsGoals).where(eq(savingsGoals.id, id));
+  }
+
+  // ─── Shopping Hub ─────────────────────────────────────────────────────────────
+  async getCartItems(userId: number): Promise<CartItem[]> {
+    return await db.select().from(cartItems).where(eq(cartItems.userId, userId)).orderBy(desc(cartItems.addedAt));
+  }
+
+  async addToCart(userId: number, productId: string): Promise<CartItem> {
+    const [existing] = await db.select().from(cartItems).where(and(eq(cartItems.userId, userId), eq(cartItems.productId, productId)));
+    if (existing) {
+      const [updated] = await db.update(cartItems).set({ quantity: existing.quantity + 1 }).where(eq(cartItems.id, existing.id)).returning();
+      return updated;
+    }
+    const [created] = await db.insert(cartItems).values({ userId, productId, quantity: 1 }).returning();
+    return created;
+  }
+
+  async removeFromCart(id: number): Promise<void> {
+    await db.delete(cartItems).where(eq(cartItems.id, id));
+  }
+
+  async updateCartQty(id: number, quantity: number): Promise<CartItem> {
+    const [updated] = await db.update(cartItems).set({ quantity }).where(eq(cartItems.id, id)).returning();
+    return updated;
+  }
+
+  async clearCart(userId: number): Promise<void> {
+    await db.delete(cartItems).where(eq(cartItems.userId, userId));
+  }
+
+  async createShopOrder(data: { userId: number; accountId: number; total: string }): Promise<ShopOrder> {
+    const [order] = await db.insert(shopOrders).values(data).returning();
+    return order;
+  }
+
+  async createShopOrderItems(items: Array<{ orderId: number; productId: string; productName: string; storeId: string; storeName: string; price: string; quantity: number }>): Promise<void> {
+    await db.insert(shopOrderItems).values(items);
+  }
+
+  async getShopOrders(userId: number): Promise<ShopOrder[]> {
+    return await db.select().from(shopOrders).where(eq(shopOrders.userId, userId)).orderBy(desc(shopOrders.createdAt));
+  }
+
+  async getShopOrderItems(orderId: number): Promise<ShopOrderItem[]> {
+    return await db.select().from(shopOrderItems).where(eq(shopOrderItems.orderId, orderId));
   }
 }
 

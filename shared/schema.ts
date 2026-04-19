@@ -141,6 +141,39 @@ export const insertSavingsGoalSchema = createInsertSchema(savingsGoals).omit({ i
 export type SavingsGoal = typeof savingsGoals.$inferSelect;
 export type InsertSavingsGoal = z.infer<typeof insertSavingsGoalSchema>;
 
+// ─── Shopping Hub ──────────────────────────────────────────────────────────────
+export const cartItems = pgTable("cart_items", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  productId: text("product_id").notNull(),
+  quantity: integer("quantity").default(1).notNull(),
+  addedAt: timestamp("added_at").defaultNow(),
+});
+
+export const shopOrders = pgTable("shop_orders", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  accountId: integer("account_id").references(() => accounts.id).notNull(),
+  total: decimal("total", { precision: 15, scale: 3 }).notNull(),
+  status: text("status").default("completed").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const shopOrderItems = pgTable("shop_order_items", {
+  id: serial("id").primaryKey(),
+  orderId: integer("order_id").references(() => shopOrders.id).notNull(),
+  productId: text("product_id").notNull(),
+  productName: text("product_name").notNull(),
+  storeId: text("store_id").notNull(),
+  storeName: text("store_name").notNull(),
+  price: decimal("price", { precision: 15, scale: 3 }).notNull(),
+  quantity: integer("quantity").default(1).notNull(),
+});
+
+export type CartItem = typeof cartItems.$inferSelect;
+export type ShopOrder = typeof shopOrders.$inferSelect;
+export type ShopOrderItem = typeof shopOrderItems.$inferSelect;
+
 // ─── Relations
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),

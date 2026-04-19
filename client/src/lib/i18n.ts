@@ -763,6 +763,33 @@ const translations = {
     "Goal deleted": "تم حذف الهدف",
     "Your goal title": "عنوان هدفك",
     "Set a target amount": "حدد مبلغًا مستهدفًا",
+
+    // Shop
+    "Shop": "متجر",
+    "TunBank Shop": "متجر TunBank",
+    "Shop from top stores and pay instantly from your balance": "تسوق من أكبر المتاجر وادفع فورًا من رصيدك",
+    "Add to Cart": "أضف للسلة",
+    "In Cart": "في السلة",
+    "Cart": "السلة",
+    "Your Cart": "سلتك",
+    "Your cart is empty": "السلة فارغة",
+    "Checkout": "إتمام الشراء",
+    "Confirm Purchase": "تأكيد الشراء",
+    "Pay from account": "ادفع من حساب",
+    "Pay": "ادفع",
+    "items": "منتجات",
+    "Order Confirmed!": "تم الطلب!",
+    "Paid from account": "مدفوع من حساب",
+    "Order ID": "رقم الطلب",
+    "Continue Shopping": "تابع التسوق",
+    "You earned reward points for this purchase!": "ربحت نقاط مكافأة على هذا الشراء!",
+    "My Orders": "طلباتي",
+    "Back to Shop": "ارجع للمتجر",
+    "No orders yet": "لا توجد طلبات بعد",
+    "Added to cart": "أضيف للسلة",
+    "Total": "المجموع",
+    "Status": "الحالة",
+    "Date": "التاريخ",
   }
 };
 

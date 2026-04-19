@@ -2,7 +2,7 @@ import { Link, useLocation } from "wouter";
 import { 
   LayoutDashboard, CreditCard, ArrowRightLeft, Settings, 
   LogOut, Wallet, Moon, Sun, Languages, MessageSquare, Palette,
-  PieChart, Gift, Target
+  PieChart, Gift, Target, ShoppingBag
 } from "lucide-react";
 import { useUser, useLogout } from "@/hooks/use-auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -167,6 +167,7 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
     { href: "/analytics",  labelKey: "Analytics",  icon: PieChart },
     { href: "/rewards",    labelKey: "Rewards",    icon: Gift },
     { href: "/savings",    labelKey: "Savings Goals", icon: Target },
+    { href: "/shop",       labelKey: "Shop",          icon: ShoppingBag },
     { href: "/assistant",  labelKey: "Assistant",  icon: MessageSquare },
   ];
 

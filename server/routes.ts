@@ -282,6 +282,93 @@ export async function registerRoutes(
     }
   });
 
+  // === SHOPPING HUB ===
+  app.get("/api/shop/cart", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    const items = await storage.getCartItems(req.user.id);
+    res.json(items);
+  });
+
+  app.post("/api/shop/cart", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    const { productId } = req.body;
+    if (!productId) return res.status(400).json({ message: "productId required" });
+    const item = await storage.addToCart(req.user.id, productId);
+    res.json(item);
+  });
+
+  app.patch("/api/shop/cart/:id", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    const { quantity } = req.body;
+    if (!quantity || quantity < 1) return res.status(400).json({ message: "quantity >= 1 required" });
+    const item = await storage.updateCartQty(Number(req.params.id), Number(quantity));
+    res.json(item);
+  });
+
+  app.delete("/api/shop/cart/:id", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    await storage.removeFromCart(Number(req.params.id));
+    res.json({ success: true });
+  });
+
+  app.post("/api/shop/checkout", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    try {
+      const { accountId, items, total } = req.body;
+      if (!accountId || !items?.length || !total) return res.status(400).json({ message: "Missing fields" });
+
+      const account = await storage.getAccount(accountId);
+      if (!account || account.userId !== req.user.id) return res.status(404).json({ message: "Account not found" });
+
+      const totalDecimal = new Decimal(String(total));
+      if (new Decimal(account.balance).lessThan(totalDecimal)) {
+        return res.status(400).json({ message: "Insufficient funds" });
+      }
+
+      await storage.updateAccountBalance(account.id, new Decimal(account.balance).minus(totalDecimal).toString());
+
+      const order = await storage.createShopOrder({ userId: req.user.id, accountId, total: totalDecimal.toString() });
+
+      await storage.createShopOrderItems(items.map((item: any) => ({
+        orderId: order.id,
+        productId: item.productId,
+        productName: item.productName,
+        storeId: item.storeId,
+        storeName: item.storeName,
+        price: String(item.price),
+        quantity: item.quantity,
+      })));
+
+      const storeGroups = [...new Set(items.map((i: any) => i.storeName))].join(", ");
+      await storage.createTransaction({
+        fromAccountId: account.id,
+        toAccountId: null,
+        amount: totalDecimal.toString(),
+        type: "payment",
+        status: "completed",
+        description: `Shopping — ${storeGroups}`,
+      });
+
+      await storage.clearCart(req.user.id);
+      await storage.addRewardPoints(req.user.id, Math.ceil(Number(total) * 0.5), "shopping", `Purchase at ${storeGroups} — +${Math.ceil(Number(total) * 0.5)} pts`);
+
+      res.json({ order, success: true });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Checkout failed" });
+    }
+  });
+
+  app.get("/api/shop/orders", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    const orders = await storage.getShopOrders(req.user.id);
+    const withItems = await Promise.all(orders.map(async (o) => ({
+      ...o,
+      items: await storage.getShopOrderItems(o.id),
+    })));
+    res.json(withItems);
+  });
+
   // === SAVINGS GOALS ===
   app.get("/api/savings-goals", async (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);

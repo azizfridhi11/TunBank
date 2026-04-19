@@ -15,6 +15,7 @@ import ChatAssistant from "@/pages/chat-assistant";
 import Analytics from "@/pages/analytics";
 import Rewards from "@/pages/rewards";
 import Savings from "@/pages/savings";
+import Shop from "@/pages/shop";
 import { useUser } from "@/hooks/use-auth";
 import { Loader2 } from "lucide-react";
 
@@ -69,6 +70,9 @@ function Router() {
       </Route>
       <Route path="/savings">
         <ProtectedRoute component={Savings} />
+      </Route>
+      <Route path="/shop">
+        <ProtectedRoute component={Shop} />
       </Route>
       <Route path="/settings">
         {/* Placeholder for settings */}
