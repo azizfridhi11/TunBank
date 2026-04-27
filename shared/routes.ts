@@ -128,6 +128,20 @@ export const api = {
         200: z.array(z.custom<any>()), // Replace with proper type in next step
       },
     },
+    apply: {
+      method: 'POST' as const,
+      path: '/api/loans' as const,
+      input: z.object({
+        type: z.enum(["personal", "mortgage", "auto", "education", "business", "micro"]),
+        amount: z.coerce.number().positive(),
+        durationMonths: z.coerce.number().int().positive(),
+        accountId: z.coerce.number().int().positive(),
+      }),
+      responses: {
+        200: z.custom<any>(),
+        400: errorSchemas.validation,
+      },
+    },
     repay: {
       method: 'POST' as const,
       path: '/api/loans/:id/repay' as const,

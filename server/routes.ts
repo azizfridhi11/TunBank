@@ -230,6 +230,56 @@ export async function registerRoutes(
     res.json(loans);
   });
 
+  app.post(api.loans.apply.path, async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    try {
+      const { type, amount, durationMonths, accountId } = api.loans.apply.input.parse(req.body);
+      const account = await storage.getAccount(accountId);
+      if (!account || account.userId !== req.user.id) return res.status(404).json({ message: "Account not found" });
+
+      const RATES: Record<string, number> = {
+        personal: 8.5, auto: 7.0, mortgage: 4.5, education: 5.0, business: 9.0, micro: 12.0,
+      };
+      const annualRate = RATES[type] ?? 8.5;
+      const monthlyRate = annualRate / 100 / 12;
+      const n = durationMonths;
+      const principal = amount;
+      const monthlyInstallment = monthlyRate === 0
+        ? principal / n
+        : (principal * monthlyRate * Math.pow(1 + monthlyRate, n)) / (Math.pow(1 + monthlyRate, n) - 1);
+      const totalRepayment = monthlyInstallment * n;
+
+      const newLoan = await storage.createLoan({
+        userId: req.user.id,
+        type,
+        amount: principal.toFixed(2),
+        interestRate: annualRate.toFixed(2),
+        durationMonths: n,
+        monthlyInstallment: monthlyInstallment.toFixed(2),
+        remainingBalance: totalRepayment.toFixed(2),
+        status: "active",
+      });
+
+      // Disburse loan amount to user's account
+      const newBalance = new Decimal(account.balance).plus(principal).toString();
+      await storage.updateAccountBalance(account.id, newBalance);
+
+      await storage.createTransaction({
+        fromAccountId: null,
+        toAccountId: account.id,
+        amount: principal.toFixed(2),
+        type: "deposit",
+        status: "completed",
+        description: `Loan disbursement — ${type} loan #${newLoan.id}`,
+      });
+
+      res.json(newLoan);
+    } catch (err) {
+      if (err instanceof z.ZodError) return res.status(400).json({ message: err.errors[0].message });
+      throw err;
+    }
+  });
+
   app.post(api.loans.repay.path, async (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
     try {
