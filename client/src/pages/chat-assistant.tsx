@@ -5,13 +5,20 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { User, RotateCcw, Sparkles, ArrowUp } from "lucide-react";
+import { User, RotateCcw, ArrowUp, Bot } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useTranslation } from "react-i18next";
 import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
 
-const TUNBOT_AVATAR = "https://api.dicebear.com/7.x/avataaars/svg?seed=TunBot&backgroundColor=b6e3f4&top=shortHair&hairColor=2c1b18&skinColor=ae5d29&accessories=prescription02&facialHair=beardMedium&facialHairColor=2c1b18";
+function TunBotAvatar({ size = "sm" }: { size?: "sm" | "lg" }) {
+  const px = size === "lg" ? "w-12 h-12" : "w-8 h-8";
+  return (
+    <div className={`${px} rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center flex-shrink-0 shadow-md`}>
+      <Bot className={size === "lg" ? "w-6 h-6 text-primary-foreground" : "w-4 h-4 text-primary-foreground"} />
+    </div>
+  );
+}
 
 type Message = {
   role: "user" | "assistant";
@@ -124,8 +131,8 @@ function MessageBubble({ message }: { message: Message }) {
       <div className="flex-shrink-0 w-8 h-8 rounded-full overflow-hidden mt-0.5 flex items-center justify-center"
         style={isUser ? {} : {}}>
         {isUser
-          ? <div className="w-full h-full bg-primary flex items-center justify-center"><User className="w-4 h-4 text-primary-foreground" /></div>
-          : <img src={TUNBOT_AVATAR} alt="TunBot" className="w-full h-full object-cover bg-blue-100" />
+          ? <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0"><User className="w-4 h-4 text-primary-foreground" /></div>
+          : <TunBotAvatar size="sm" />
         }
       </div>
 
@@ -275,9 +282,7 @@ export default function ChatAssistant() {
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl overflow-hidden shadow-lg border-2 border-primary/20 bg-blue-100">
-              <img src={TUNBOT_AVATAR} alt="TunBot" className="w-full h-full object-cover" />
-            </div>
+            <TunBotAvatar size="lg" />
             <div>
               <h1 className="text-2xl font-display font-bold text-foreground flex items-center gap-2">
                 TunBot
@@ -302,9 +307,7 @@ export default function ChatAssistant() {
 
               {isLoading && (
                 <div className="flex gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full overflow-hidden bg-blue-100">
-                    <img src={TUNBOT_AVATAR} alt="TunBot" className="w-full h-full object-cover" />
-                  </div>
+                    <TunBotAvatar size="sm" />
                   <div className="bg-card border border-border rounded-2xl rounded-tl-none px-4 py-3 shadow-sm">
                     <TypingDots />
                   </div>
