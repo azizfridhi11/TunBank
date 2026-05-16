@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocation } from "wouter";
@@ -22,12 +22,11 @@ export default function AuthPage() {
   const { mutateAsync: register, isPending: isRegisterPending } = useRegister();
   const [activeTab, setActiveTab] = useState("login");
 
-  if (user) {
-    setLocation("/dashboard");
-    return null;
-  }
+  useEffect(() => {
+    if (user) setLocation("/dashboard");
+  }, [user, setLocation]);
 
-  if (isLoadingUser) {
+  if (isLoadingUser || user) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -134,27 +133,28 @@ function LoginForm({ onSubmit, isLoading }: { onSubmit: (data: any) => Promise<v
   const { t } = useTranslation();
   const form = useForm({
     resolver: zodResolver(api.auth.login.input),
-    defaultValues: { username: "", password: "" },
+    defaultValues: { email: "", password: "" },
   });
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
       <div className="space-y-1.5">
-        <Label htmlFor="username" className="text-xs font-medium text-muted-foreground ml-1">
-          {t("Email or Username")}
+        <Label htmlFor="email" className="text-xs font-medium text-muted-foreground ml-1">
+          {t("Email Address")}
         </Label>
         <div className="relative">
-          <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            id="username"
-            {...form.register("username")}
+            id="email"
+            type="email"
+            {...form.register("email")}
             placeholder="name@example.com"
             className="pl-11 h-12 bg-muted/40 border-transparent focus:bg-background focus:border-border transition-all rounded-2xl"
-            data-testid="input-username"
+            data-testid="input-email"
           />
         </div>
-        {form.formState.errors.username && (
-          <p className="text-xs text-destructive mt-1 ml-1">{form.formState.errors.username.message}</p>
+        {form.formState.errors.email && (
+          <p className="text-xs text-destructive mt-1 ml-1">{form.formState.errors.email.message}</p>
         )}
       </div>
 

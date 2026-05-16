@@ -45,12 +45,15 @@ export function setupAuth(app: Express) {
   app.use(passport.session());
 
   passport.use(
-    new LocalStrategy(async (username, password, done) => {
-      const user = await storage.getUserByUsername(username);
-      if (!user || !(await comparePasswords(password, user.password))) {
-        return done(null, false);
-      } else {
+    new LocalStrategy({ usernameField: "email" }, async (email, password, done) => {
+      try {
+        const user = await storage.getUserByUsername(email);
+        if (!user) return done(null, false);
+        const match = await comparePasswords(password, user.password);
+        if (!match) return done(null, false);
         return done(null, user);
+      } catch (err) {
+        return done(err);
       }
     }),
   );
@@ -63,9 +66,9 @@ export function setupAuth(app: Express) {
 
   app.post("/api/register", async (req, res, next) => {
     try {
-      const existingUser = await storage.getUserByUsername(req.body.username);
+      const existingUser = await storage.getUserByUsername(req.body.email);
       if (existingUser) {
-        return res.status(400).send("Username already exists");
+        return res.status(400).json({ message: "An account with this email already exists" });
       }
 
       const hashedPassword = await hashPassword(req.body.password);

@@ -32,8 +32,8 @@ export const api = {
       method: 'POST' as const,
       path: '/api/login' as const,
       input: z.object({
-        username: z.string(),
-        password: z.string(),
+        email: z.string().email("Please enter a valid email"),
+        password: z.string().min(1, "Password is required"),
       }),
       responses: {
         200: z.custom<typeof users.$inferSelect>(),
