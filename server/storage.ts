@@ -17,8 +17,10 @@ import Decimal from "decimal.js";
 
 import session from "express-session";
 import createMemoryStore from "memorystore";
+import connectPgSimple from "connect-pg-simple";
 
 const MemoryStore = createMemoryStore(session);
+const PgStore = connectPgSimple(session);
 
 export interface IStorage {
   // Users
@@ -78,9 +80,17 @@ export class DatabaseStorage implements IStorage {
   sessionStore: session.Store;
 
   constructor() {
-    this.sessionStore = new MemoryStore({
-      checkPeriod: 86400000,
-    });
+    if (process.env.NODE_ENV === "production" && process.env.DATABASE_URL) {
+      this.sessionStore = new PgStore({
+        conString: process.env.DATABASE_URL,
+        createTableIfMissing: true,
+        tableName: "session",
+      });
+    } else {
+      this.sessionStore = new MemoryStore({
+        checkPeriod: 86400000,
+      });
+    }
   }
 
   async getUser(id: number): Promise<User | undefined> {
