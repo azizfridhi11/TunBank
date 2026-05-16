@@ -128,7 +128,9 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    document.documentElement.lang = i18n.language;
+    const lang = i18n.language;
+    document.documentElement.lang = lang;
+    document.documentElement.dir = (lang === "ar" || lang === "tn") ? "rtl" : "ltr";
   }, [i18n.language]);
 
   // Restore saved accent on mount
