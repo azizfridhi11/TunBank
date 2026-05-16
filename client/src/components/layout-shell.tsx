@@ -1,7 +1,7 @@
 import { Link, useLocation } from "wouter";
 import { 
   LayoutDashboard, CreditCard, ArrowRightLeft, Settings, 
-  LogOut, Wallet, Moon, Sun, Languages, MessageSquare, Palette,
+  LogOut, Wallet, Moon, Sun, Languages, Server, Palette,
   PieChart, Gift, Target, ShoppingBag
 } from "lucide-react";
 import { useUser, useLogout } from "@/hooks/use-auth";
@@ -173,7 +173,7 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
     { href: "/rewards",    labelKey: "Rewards",    icon: Gift },
     { href: "/savings",    labelKey: "Savings Goals", icon: Target },
     { href: "/shop",       labelKey: "Shop",          icon: ShoppingBag },
-    { href: "/assistant",  labelKey: "Assistant",  icon: MessageSquare },
+    { href: "/assistant",  labelKey: "TunBot",     icon: Server },
   ];
 
   if (!user) return null;
