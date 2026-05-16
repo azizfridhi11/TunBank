@@ -292,6 +292,10 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
             <LogOut className="w-4 h-4" />
             {t("Sign Out")}
           </Button>
+
+          <p className="text-[10px] text-muted-foreground/50 text-center leading-tight pt-1">
+            © {new Date().getFullYear()} Mohamed Aziz Fridhi
+          </p>
         </div>
       </aside>
 
