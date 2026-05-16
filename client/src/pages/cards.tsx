@@ -5,7 +5,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Wifi, Eye, EyeOff, Snowflake } from "lucide-react";
+import { Plus, Wifi, Eye, EyeOff, Snowflake, AlertCircle } from "lucide-react";
+import { useLocation } from "wouter";
 import { SiVisa } from "react-icons/si";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -200,8 +201,9 @@ function CreditCardItem({ card }: { card: any }) {
 
 function CreateCardForm({ onSuccess }: { onSuccess: () => void }) {
   const { mutate: createCard, isPending } = useCreateCard();
-  const { data: accounts } = useAccounts();
+  const { data: accounts, isLoading: isLoadingAccounts } = useAccounts();
   const { t } = useTranslation();
+  const [, setLocation] = useLocation();
   const form = useForm();
 
   const onSubmit = (data: any) => {
@@ -219,30 +221,50 @@ function CreateCardForm({ onSuccess }: { onSuccess: () => void }) {
     }, { onSuccess });
   };
 
+  const hasNoAccounts = !isLoadingAccounts && (!accounts || accounts.length === 0);
+
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
       <div className="space-y-2">
         <Label>{t("Link to Account")}</Label>
-        <Select onValueChange={(val) => form.setValue("accountId", val)}>
-          <SelectTrigger>
-            <SelectValue placeholder={t("Select account")} />
-          </SelectTrigger>
-          <SelectContent>
-            {accounts?.map((acc) => (
-              <SelectItem key={acc.id} value={acc.id.toString()}>
-                {acc.type.toUpperCase()} - ({acc.currency})
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        {hasNoAccounts ? (
+          <div className="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950/30 p-3">
+            <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
+            <div className="text-sm">
+              <p className="font-medium text-amber-800 dark:text-amber-300">{t("No accounts found")}</p>
+              <p className="text-amber-700 dark:text-amber-400 mt-0.5">{t("You need a bank account before issuing a card.")}</p>
+              <Button
+                type="button"
+                variant="link"
+                className="p-0 h-auto text-sm font-semibold text-amber-800 dark:text-amber-300 mt-1"
+                onClick={() => { onSuccess(); setLocation("/accounts"); }}
+              >
+                {t("Create an account →")}
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <Select onValueChange={(val) => form.setValue("accountId", val)} disabled={isLoadingAccounts}>
+            <SelectTrigger data-testid="select-account">
+              <SelectValue placeholder={isLoadingAccounts ? t("Loading accounts…") : t("Select account")} />
+            </SelectTrigger>
+            <SelectContent>
+              {accounts?.map((acc) => (
+                <SelectItem key={acc.id} value={acc.id.toString()} data-testid={`option-account-${acc.id}`}>
+                  {acc.type.charAt(0).toUpperCase() + acc.type.slice(1)} — {acc.accountNumber} ({acc.currency})
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
       </div>
 
       <div className="space-y-2">
         <Label>{t("Name on Card")}</Label>
-        <Input placeholder="JOHN DOE" {...form.register("cardHolderName")} />
+        <Input placeholder="JOHN DOE" {...form.register("cardHolderName")} data-testid="input-card-holder-name" />
       </div>
 
-      <Button type="submit" className="w-full" disabled={isPending}>
+      <Button type="submit" className="w-full" disabled={isPending || hasNoAccounts} data-testid="button-issue-card">
         {isPending ? t("Issuing...") : t("Issue Card")}
       </Button>
     </form>
