@@ -3,10 +3,10 @@ import { storage } from "./storage";
 import { hashPassword } from "./auth";
 
 async function seed() {
-  const email = "azizfrd@gmail.com";
+  const email = "demo@bank.com";
   const existingUser = await storage.getUserByUsername(email);
   if (!existingUser) {
-    const password = await hashPassword("aziz123");
+    const password = await hashPassword("demo123");
     const user = await storage.createUser({
       email,
       password,
@@ -14,10 +14,10 @@ async function seed() {
       role: "user",
       isVerified: true,
       kycStatus: "approved",
-      phoneNumber: "+1234567890"
+      phoneNumber: "+21698765432"
     });
 
-    const account = await storage.createAccount({
+    const checking = await storage.createAccount({
       userId: user.id,
       accountNumber: "AC123456789",
       type: "checking",
@@ -26,9 +26,18 @@ async function seed() {
       isActive: true
     });
 
+    const savings = await storage.createAccount({
+      userId: user.id,
+      accountNumber: "AC987654321",
+      type: "savings",
+      currency: "TND",
+      balance: "12500.000",
+      isActive: true
+    });
+
     await storage.createCard({
-      accountId: account.id,
-      cardNumber: "4532 **** **** 8899",
+      accountId: checking.id,
+      cardNumber: "4532789012348899",
       cardHolderName: "AZIZ PFE",
       expiryDate: "12/28",
       cvv: "123",
@@ -47,14 +56,45 @@ async function seed() {
 
     await storage.createTransaction({
       fromAccountId: null,
-      toAccountId: account.id,
+      toAccountId: checking.id,
       amount: "5000.00",
       type: "deposit",
       status: "completed",
       description: "Initial Deposit"
     });
 
-    console.log("Database seeded successfully!");
+    await storage.createTransaction({
+      fromAccountId: null,
+      toAccountId: savings.id,
+      amount: "12500.00",
+      type: "deposit",
+      status: "completed",
+      description: "Initial Savings Deposit"
+    });
+
+    await storage.createTransaction({
+      fromAccountId: checking.id,
+      toAccountId: null,
+      amount: "250.00",
+      type: "payment",
+      status: "completed",
+      description: "Electricity Bill"
+    });
+
+    await storage.createTransaction({
+      fromAccountId: checking.id,
+      toAccountId: null,
+      amount: "80.00",
+      type: "payment",
+      status: "completed",
+      description: "Internet Subscription"
+    });
+
+    console.log("Demo account seeded successfully!");
+    console.log("  Email:    demo@bank.com");
+    console.log("  Password: demo123");
+  } else {
+    console.log("Demo account already exists, skipping seed.");
   }
 }
 
