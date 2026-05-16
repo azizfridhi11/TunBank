@@ -82,6 +82,69 @@ export async function registerRoutes(
     }
   });
 
+  // === SERVICE PAYMENT (bill, mandat, inscription, naf9a, merchant) ===
+  const servicePaymentSchema = z.object({
+    accountId: z.number(),
+    serviceType: z.string().min(1),
+    amount: z.string().refine(v => !isNaN(Number(v)) && Number(v) > 0, "Amount must be > 0"),
+    provider: z.string().optional(),
+    reference: z.string().optional(),
+    description: z.string().optional(),
+  });
+
+  app.post("/api/service-payment", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    try {
+      const { accountId, serviceType, amount, provider, reference, description } = servicePaymentSchema.parse(req.body);
+      const account = await storage.getAccount(accountId);
+      if (!account || account.userId !== req.user.id) {
+        return res.status(404).json({ message: "Account not found" });
+      }
+
+      const balance = new Decimal(account.balance);
+      const payAmount = new Decimal(amount);
+
+      if (balance.lessThan(payAmount)) {
+        return res.status(400).json({ message: "Insufficient funds" });
+      }
+
+      await storage.updateAccountBalance(account.id, balance.minus(payAmount).toString());
+
+      await storage.createBill({
+        userId: req.user.id,
+        accountId: account.id,
+        type: serviceType,
+        provider: provider || serviceType,
+        amount: payAmount.toString(),
+        referenceNumber: reference,
+        status: "completed",
+      });
+
+      await storage.createTransaction({
+        fromAccountId: account.id,
+        toAccountId: null,
+        amount: payAmount.toString(),
+        type: "payment",
+        status: "completed",
+        description: description || `${serviceType} — ${provider || ""}`,
+      });
+
+      await storage.addRewardPoints(
+        req.user.id,
+        REWARD_POINTS.bill_payment,
+        "bill_payment",
+        `${serviceType} — +${REWARD_POINTS.bill_payment} pts`
+      );
+
+      res.json({ success: true });
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({ message: err.errors[0].message });
+      }
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   // === ACCOUNTS ===
   app.get(api.accounts.list.path, async (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
