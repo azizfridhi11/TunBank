@@ -27,6 +27,11 @@ export async function registerRoutes(
   registerChatRoutes(app);
   registerImageRoutes(app);
 
+  // === HEALTH CHECK ===
+  app.get("/api/health", (_req, res) => {
+    res.status(200).json({ status: "ok" });
+  });
+
   // === SERVICES / RECHARGE ===
   app.post("/api/recharge", async (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
